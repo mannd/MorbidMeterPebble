@@ -1,17 +1,14 @@
 #include <pebble.h>
 
 #define MM_TITLE "MorbidMeter"
-#define LOCAL_TIME_TS "Local Time"
-#define TS "TimeScale: "
-#define DEFAULT_HEADER MM_TITLE "\n" TS LOCAL_TIME_TS
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 
-static GFont s_time_font;
+//static GFont s_time_font;
 
 static BitmapLayer *s_background_layer;
-static GBitmap *s_background_bitmap;
+//static GBitmap *s_background_bitmap;
 
 static void update_time() {
   // Get a tm structure
@@ -19,15 +16,15 @@ static void update_time() {
   struct tm *tick_time = localtime(&temp);
 
   // Create a long-lived buffer
-  static char buffer[] = DEFAULT_HEADER "\n00:00:00";
+  static char buffer[] = MM_TITLE "\n00:00:00";
 
   // Write the current hours and minutes into the buffer
   if(clock_is_24h_style() == true) {
     //Use 2h hour format
-    strftime(buffer, sizeof(DEFAULT_HEADER "\n00:00:00"), DEFAULT_HEADER "\n%H:%M:%S", tick_time);
+    strftime(buffer, sizeof(MM_TITLE "\n00:00:00"), MM_TITLE "\n%H:%M:%S", tick_time);
   } else {
     //Use 12 hour format
-    strftime(buffer, sizeof(DEFAULT_HEADER "\n00:00:00"), DEFAULT_HEADER "\n%I:%M:%S", tick_time);
+    strftime(buffer, sizeof(MM_TITLE "\n00:00:00"), MM_TITLE "\n%I:%M:%S", tick_time);
   }
 
   // Display this time on the TextLayer
@@ -45,14 +42,14 @@ static void main_window_load(Window *window) {
   s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
-  text_layer_set_text(s_time_layer, "00:00");
+  text_layer_set_text(s_time_layer, MM_TITLE "\n00:00:00");
   
   //Create GFont
 //   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_48));
 
   //Apply to TextLayer
-//   text_layer_set_font(s_time_layer, fonts_get_system_font(
-//   FONT_KEY_BITHAM_24_BOLD));
+  text_layer_set_font(s_time_layer, fonts_get_system_font(
+  FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   // Add it as a child layer to the Window's root layer
