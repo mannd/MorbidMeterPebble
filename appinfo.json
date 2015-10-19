@@ -10,7 +10,6 @@
         "media": [
             {
                 "file": "images/mmpebble_menu_icon_28x28.png",
-                "menuIcon": true,
                 "name": "IMAGE_MENU_ITEM",
                 "type": "png"
             }
