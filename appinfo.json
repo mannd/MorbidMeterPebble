@@ -19,7 +19,9 @@
     "sdkVersion": "3",
     "shortName": "MorbidMeter",
     "targetPlatforms": [
-        "aplite"
+        "aplite",
+        "basalt",
+        "chalk"
     ],
     "uuid": "2b1137cb-e8fc-4225-93fb-f546bb9d995e",
     "versionLabel": "1.0",
