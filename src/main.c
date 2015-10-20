@@ -1,6 +1,7 @@
 #include <pebble.h>
 
 #define MM_TITLE "MorbidMeter"
+#define DATE "%n%b %e %Y"
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -16,15 +17,17 @@ static void update_time() {
   struct tm *tick_time = localtime(&temp);
 
   // Create a long-lived buffer
-  static char buffer[] = MM_TITLE "\n00:00:00";
+  static char buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00";
 
   // Write the current hours and minutes into the buffer
   if(clock_is_24h_style() == true) {
     //Use 2h hour format
-    strftime(buffer, sizeof(MM_TITLE "\n00:00:00"), MM_TITLE "\n%H:%M:%S", tick_time);
+    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00"), 
+             MM_TITLE DATE "\n%H:%M:%S", tick_time);
   } else {
     //Use 12 hour format
-    strftime(buffer, sizeof(MM_TITLE "\n00:00:00"), MM_TITLE "\n%I:%M:%S", tick_time);
+    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00"), 
+             MM_TITLE DATE "\n%I:%M:%S", tick_time);
   }
 
   // Display this time on the TextLayer
@@ -39,7 +42,7 @@ static void main_window_load(Window *window) {
 //   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
   
   // Create time TextLayer
-  s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
+  s_time_layer = text_layer_create(GRect(0, 35, 144, 120));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   text_layer_set_text(s_time_layer, MM_TITLE "\n00:00:00");
@@ -49,7 +52,7 @@ static void main_window_load(Window *window) {
 
   //Apply to TextLayer
   text_layer_set_font(s_time_layer, fonts_get_system_font(
-  FONT_KEY_GOTHIC_24_BOLD));
+  FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   // Add it as a child layer to the Window's root layer
