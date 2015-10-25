@@ -46,7 +46,7 @@ static void main_window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   // Create time TextLayer
-  s_time_layer = text_layer_create(GRect(0, 35, bounds.size.w, 120));
+  s_time_layer = text_layer_create(GRect(0, 40, bounds.size.w, 125));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   text_layer_set_text(s_time_layer, MM_TITLE "\n00:00:00");
