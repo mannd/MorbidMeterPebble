@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel='stylesheet' type='text/css' href='/bower_components/Slate/dist/css/slate.min.css'>
+  <link rel='stylesheet' type='text/css' href='/css/style.css'>
+</head>
+<body>
+  <div class='item-container'>
+    <h1 class='title'>MorbidMeter<br>Configuration Page</h1>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-content'>
+      <div class='item'>
+        Use this configuration page to choose the settings you would like
+        applied to this app.
+      </div>
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='item-container-header'>Customizability</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Background Color
+        <input id='backgroundColorPicker' type='text' class='item-color item-color-sunny' value='#000000'>
+      </label>
+      <label class='item'>
+        24-Hour Format
+        <input id='timeFormatCheckbox' type='checkbox' class='item-checkbox' checked>
+      </label>
+    </div>
+    <div class='item-container-footer'>
+      These settings only change on the watch after you click save.
+    </div>
+  </div>
+
+    <div class='item-container'>
+    <div class='item-container-header'>Time Items</div>
+    <div class='item-container-content'>
+      <label class='item'>
+        Time Scale
+	<select name="select-1" dir='rtl' class="item-select">
+          <option class="item-select-option">One Year</option>
+          <option class="item-select-option" selected>Minutes</option>
+          <option class="item-select-option">Years</option>
+	</select>
+      </label>
+      <label class='item'>
+        Reverse Time
+	<input type="checkbox" class="item-toggle" name="toggle-2" checked>
+      </label>
+      <label class="item">
+	Start Date
+	<input type="date" class="item-date" name="date-1" value="2015-02-12">
+      </label>
+      <label class="item">
+	Start Time
+	<input type="time" class="item-time" name="time-1" value="18:35">
+      </label>
+      <label class="item">
+	End Date
+	<input type="date" class="item-date" name="date-1" value="2015-02-12">
+      </label>
+      <label class="item">
+	End Time
+	<input type="time" class="item-time" name="time-1" value="18:35">
+      </label>
+
+    </div>
+  </div>
+
+  <div class='item-container'>
+    <div class='button-container'>
+      <input id='submitButton' type='button' class='item-button' value='SUBMIT'>
+    </div>
+  </div>
+
+  <script src='/bower_components/Slate/dist/js/slate.min.js'></script>
+  <script src='/js/main.js'></script>
+</body>
+</html>
