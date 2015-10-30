@@ -37,7 +37,7 @@
     <div class='item-container-content'>
       <label class='item'>
         Timescale
-	<select name="select-1" dir='rtl' class="item-select">
+	<select id='timescaleSelector' name="select-1" dir='rtl' class="item-select">
           <option class="item-select-option" selected>Local Time</option>
           <option class="item-select-option">Seconds
           <option class="item-select-option">Minutes</option>
@@ -51,23 +51,23 @@
       </label>
       <label class='item'>
         Reverse Time
-	<input type="checkbox" class="item-toggle" name="toggle-2" checked>
+	<input id='reverseTimeCheckBox' type="checkbox" class="item-toggle" name="toggle-2" checked>
       </label>
       <label class="item">
 	Start Date
-	<input type="date" class="item-date" name="date-1" value="2015-02-12">
+	<input id='startDate' type="date" class="item-date" name="date-1" value="2015-02-12">
       </label>
-      <label class="item">
+      <label id='startTime' class="item">
 	Start Time
 	<input type="time" class="item-time" name="time-1" value="18:35">
       </label>
       <label class="item">
 	End Date
-	<input type="date" class="item-date" name="date-1" value="2015-02-12">
+	<input id='endDate' type="date" class="item-date" name="date-1" value="2015-02-12">
       </label>
       <label class="item">
 	End Time
-	<input type="time" class="item-time" name="time-1" value="18:35">
+	<input id='endTime' type="time" class="item-time" name="time-1" value="18:35">
       </label>
     </div>
     <div class='item-container-footer'>
