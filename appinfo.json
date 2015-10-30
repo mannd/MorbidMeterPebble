@@ -1,5 +1,8 @@
 {
-    "appKeys": {},
+    "appKeys": {
+	"backgroundColor": 0,
+	"twentyFourHourFormat": 1
+    },
     "capabilities": [
         "configurable"
     ],

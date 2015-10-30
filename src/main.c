@@ -2,14 +2,26 @@
 
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
+
+#define KEY_BACKGROUND_COLOR 0
+#define KEY_TWENTY_FOUR_HOUR_FORMAT 1
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
+static bool twenty_four_hour_format = false;
 
 //static GFont s_time_font;
 
 static BitmapLayer *s_background_layer;
 //static GBitmap *s_background_bitmap;
+
+static void set_background_and_text_color(int color) {
+#ifdef PBL_SDK_3
+  GColor background_color = GColorFromHEX(color);
+  window_set_background_color(s_main_window, background_color);
+  text_layer_set_text_color(s_time_layer, gcolor_legible_over(background_color));
+#endif
+}
 
 static void update_time() {
   // Get a tm structure
@@ -20,7 +32,7 @@ static void update_time() {
   static char buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00";
 
   // Write the current hours and minutes into the buffer
-  if(clock_is_24h_style() == true) {
+  if(clock_is_24h_style() == twenty_four_hour_format) {
     //Use 2h hour format
     strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00"), 
              MM_TITLE DATE "\n%H:%M:%S", tick_time);
@@ -32,6 +44,27 @@ static void update_time() {
 
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, buffer);
+}
+
+static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+  Tuple *background_color_t = dict_find(iter, KEY_BACKGROUND_COLOR);
+  Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
+
+  if (background_color_t) {
+    int background_color = background_color_t->value->int32;
+
+    persist_write_int(KEY_BACKGROUND_COLOR, background_color);
+
+    set_background_and_text_color(background_color);
+  }
+
+  if (twenty_four_hour_format_t) {
+    twenty_four_hour_format = twenty_four_hour_format_t->value->int8;
+
+    persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
+
+    update_time();
+  }
 }
 
 static void main_window_load(Window *window) {
@@ -59,9 +92,18 @@ static void main_window_load(Window *window) {
   FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
+  if (persist_read_int(KEY_BACKGROUND_COLOR)) {
+    int background_color = persist_read_int(KEY_BACKGROUND_COLOR);
+    set_background_and_text_color(background_color);
+  }
+
+  if (persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT)) {
+    twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
+  }
+
+
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
-    
   // Make sure the time is displayed from the start
   update_time();
 }
@@ -86,12 +128,11 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
 }
 
-
   
 static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
-
+ 
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
@@ -103,6 +144,9 @@ static void init() {
   
   // Register with TickTimerService
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+
+  app_message_register_inbox_received(inbox_received_handler);
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
 
 static void deinit() {
