@@ -36,11 +36,11 @@ static void update_time() {
   // Write the current hours and minutes into the buffer
   if(clock_is_24h_style() == twenty_four_hour_format) {
     //Use 2h hour format
-    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00 pm"), 
+    strftime(buffer, sizeof(buffer),
              MM_TITLE DATE "\n%H:%M:%S", tick_time);
   } else {
     //Use 12 hour format
-    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00 pm"), 
+    strftime(buffer, sizeof(buffer),
              MM_TITLE DATE "\n%I:%M:%S %p", tick_time);
   }
 
