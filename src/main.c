@@ -8,6 +8,7 @@
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
+static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 
 //static GFont s_time_font;
@@ -20,6 +21,7 @@ static void set_background_and_text_color(int color) {
   GColor background_color = GColorFromHEX(color);
   window_set_background_color(s_main_window, background_color);
   text_layer_set_text_color(s_time_layer, gcolor_legible_over(background_color));
+  text_layer_set_text_color(s_timescale_layer, gcolor_legible_over(background_color));
 #endif
 }
 
@@ -29,17 +31,17 @@ static void update_time() {
   struct tm *tick_time = localtime(&temp);
 
   // Create a long-lived buffer
-  static char buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00";
+  static char buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 
   // Write the current hours and minutes into the buffer
   if(clock_is_24h_style() == twenty_four_hour_format) {
     //Use 2h hour format
-    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00"), 
+    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00 pm"), 
              MM_TITLE DATE "\n%H:%M:%S", tick_time);
   } else {
     //Use 12 hour format
-    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00"), 
-             MM_TITLE DATE "\n%I:%M:%S", tick_time);
+    strftime(buffer, sizeof(MM_TITLE "\nMMM 00 0000\n00:00:00 pm"), 
+             MM_TITLE DATE "\n%I:%M:%S %p", tick_time);
   }
 
   // Display this time on the TextLayer
@@ -79,18 +81,32 @@ static void main_window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   // Create time TextLayer
-  s_time_layer = text_layer_create(GRect(0, 40, bounds.size.w, 125));
+  s_time_layer = text_layer_create(GRect(0, 30, bounds.size.w, 100));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   text_layer_set_text(s_time_layer, MM_TITLE "\n00:00:00");
-  
-  //Create GFont
-//   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_48));
-
-  //Apply to TextLayer
   text_layer_set_font(s_time_layer, fonts_get_system_font(
   FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
+
+  // Create timescale TextLayer
+#if defined(PBL_RECT)
+  s_timescale_layer = text_layer_create(GRect(0, bounds.size.h - 20,
+					      bounds.size.w, 20));
+#elif defined(PBL_ROUND)
+  s_timescale_layer = text_layer_create(GRect(0, bounds.size.h - 50,
+					      bounds.size.w, 20));
+#endif
+  text_layer_set_background_color(s_timescale_layer, GColorClear);
+  text_layer_set_text_color(s_timescale_layer, GColorBlack);
+  text_layer_set_text(s_timescale_layer, "Local Time");
+  text_layer_set_font(s_timescale_layer, fonts_get_system_font(
+  FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_text_alignment(s_timescale_layer, GTextAlignmentCenter);
+
+  //Create GFont
+//   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_48));
+
 
   if (persist_read_int(KEY_BACKGROUND_COLOR)) {
     int background_color = persist_read_int(KEY_BACKGROUND_COLOR);
@@ -104,6 +120,7 @@ static void main_window_load(Window *window) {
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
   // Make sure the time is displayed from the start
   update_time();
 }
@@ -118,14 +135,14 @@ static void main_window_unload(Window *window) {
   //Destroy BitmapLayer
   bitmap_layer_destroy(s_background_layer);
   
-  // Destroy TextLayer
+  // Destroy TextLayers
   text_layer_destroy(s_time_layer);
+  text_layer_destroy(s_timescale_layer);
   
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
-  
 }
 
   
