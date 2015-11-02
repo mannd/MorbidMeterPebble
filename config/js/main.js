@@ -17,24 +17,29 @@ function submitHandler() {
 function loadOptions() {
   var $backgroundColorPicker = $('#backgroundColorPicker');
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
+  var $timescaleSelector =$('#timescaleSelector');
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
     $timeFormatCheckbox[0].checked = localStorage.twentyFourHourFormat === 'true';
+    $timescaleSelector[0].value = localStorage.timescaleSelector;
   }
 }
 
 function getAndStoreConfigData() {
   var $backgroundColorPicker = $('#backgroundColorPicker');
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
+  var $timescaleSelector =$('#timescaleSelector');
 
   var options = {
     backgroundColor: $backgroundColorPicker.val(),
-    twentyFourHourFormat: $timeFormatCheckbox[0].checked
+    twentyFourHourFormat: $timeFormatCheckbox[0].checked,
+    timescaleSelector: $timescaleSelector.val()
   };
 
   localStorage.backgroundColor = options.backgroundColor;
   localStorage.twentyFourHourFormat = options.twentyFourHourFormat;
+  localStorage.timescaleSelector = options.timescaleSelector;
 
   console.log('Got options: ' + JSON.stringify(options));
   return options;

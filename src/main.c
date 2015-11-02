@@ -5,6 +5,7 @@
 
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
+#define KEY_TIMESCALE 2
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -48,9 +49,17 @@ static void update_time() {
   text_layer_set_text(s_time_layer, buffer);
 }
 
+static void set_timescale() {
+  static char buffer[] = "Local Time";
+  // get config timescale here
+
+  text_layer_set_text(s_timescale_layer, buffer);
+}
+
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *background_color_t = dict_find(iter, KEY_BACKGROUND_COLOR);
   Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
+  Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -67,6 +76,9 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
     update_time();
   }
+
+  //  if (timescale_t) {
+    
 }
 
 static void main_window_load(Window *window) {
@@ -99,10 +111,10 @@ static void main_window_load(Window *window) {
 #endif
   text_layer_set_background_color(s_timescale_layer, GColorClear);
   text_layer_set_text_color(s_timescale_layer, GColorBlack);
-  text_layer_set_text(s_timescale_layer, "Local Time");
   text_layer_set_font(s_timescale_layer, fonts_get_system_font(
   FONT_KEY_GOTHIC_18_BOLD));
   text_layer_set_text_alignment(s_timescale_layer, GTextAlignmentCenter);
+  set_timescale();
 
   //Create GFont
 //   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_48));
@@ -116,6 +128,10 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT)) {
     twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
+
+  //  if (persist_read_string(KEY_TIMESCALE)) {
+    //
+  //  }
 
 
   // Add it as a child layer to the Window's root layer
