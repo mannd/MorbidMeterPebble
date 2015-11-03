@@ -10,7 +10,9 @@ function submitHandler() {
     console.log('Submit');
 
     var return_to = getQueryParam('return_to', 'pebblejs://close#');
-    document.location = return_to + encodeURIComponent(JSON.stringify(getAndStoreConfigData()));
+    document.location = return_to
+                      + encodeURIComponent(
+                        JSON.stringify(getAndStoreConfigData()));
   });
 }
 
@@ -21,7 +23,8 @@ function loadOptions() {
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
-    $timeFormatCheckbox[0].checked = localStorage.twentyFourHourFormat === 'true';
+    $timeFormatCheckbox[0].checked =
+      (localStorage.twentyFourHourFormat === 'true');
     $timescaleSelector[0].value = localStorage.timescaleSelector;
   }
 }

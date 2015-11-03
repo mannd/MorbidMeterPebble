@@ -2,15 +2,19 @@
 
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
+#define LOCAL_TIME "Local Time"
 
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
+
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
+static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
+static char timescale_buffer[] = LOCAL_TIME;
 
 //static GFont s_time_font;
 
@@ -32,28 +36,25 @@ static void update_time() {
   struct tm *tick_time = localtime(&temp);
 
   // Create a long-lived buffer
-  static char buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
+  //  static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 
   // Write the current hours and minutes into the buffer
   if(clock_is_24h_style() == twenty_four_hour_format) {
     //Use 2h hour format
-    strftime(buffer, sizeof(buffer),
+    strftime(time_buffer, sizeof(time_buffer),
              MM_TITLE DATE "\n%H:%M:%S", tick_time);
   } else {
     //Use 12 hour format
-    strftime(buffer, sizeof(buffer),
+    strftime(time_buffer, sizeof(time_buffer),
              MM_TITLE DATE "\n%I:%M:%S %p", tick_time);
   }
 
   // Display this time on the TextLayer
-  text_layer_set_text(s_time_layer, buffer);
+  text_layer_set_text(s_time_layer, time_buffer);
 }
 
 static void set_timescale() {
-  static char buffer[] = "Local Time";
-  // get config timescale here
-
-  text_layer_set_text(s_timescale_layer, buffer);
+  text_layer_set_text(s_timescale_layer, timescale_buffer);
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
@@ -77,7 +78,10 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     update_time();
   }
 
-  //  if (timescale_t) {
+  if (timescale_t) {
+    
+    //  persist_write_string(KEY_TIMESCALE, timescale_buffer
+  }
     
 }
 
@@ -129,11 +133,12 @@ static void main_window_load(Window *window) {
     twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
 
-  //  if (persist_read_string(KEY_TIMESCALE)) {
-    //
-  //  }
-
-
+  if (persist_read_string(KEY_TIMESCALE, timescale_buffer,
+			  sizeof(timescale_buffer))) {
+    set_timescale();
+  }
+  
+  
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
