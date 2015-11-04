@@ -7,7 +7,6 @@
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
-
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -15,11 +14,6 @@ static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = LOCAL_TIME;
-
-//static GFont s_time_font;
-
-//static BitmapLayer *s_background_layer;
-//static GBitmap *s_background_bitmap;
 
 static void set_background_and_text_color(int color) {
 #ifdef PBL_SDK_3
@@ -31,25 +25,16 @@ static void set_background_and_text_color(int color) {
 }
 
 static void update_time() {
-  // Get a tm structure
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
-
-  // Create a long-lived buffer
-  //  static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
-
   // Write the current hours and minutes into the buffer
   if(clock_is_24h_style() == twenty_four_hour_format) {
-    //Use 2h hour format
     strftime(time_buffer, sizeof(time_buffer),
              MM_TITLE DATE "\n%H:%M:%S", tick_time);
   } else {
-    //Use 12 hour format
     strftime(time_buffer, sizeof(time_buffer),
              MM_TITLE DATE "\n%I:%M:%S %p", tick_time);
   }
-
-  // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, time_buffer);
 }
 
@@ -67,41 +52,26 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
-
     persist_write_int(KEY_BACKGROUND_COLOR, background_color);
-
     set_background_and_text_color(background_color);
   }
-
   if (twenty_four_hour_format_t) {
     twenty_four_hour_format = twenty_four_hour_format_t->value->int8;
-
     persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
-
     update_time();
   }
-
   APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_t = %d", (int)timescale_t);
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
     APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_t received");
-
     persist_write_string(KEY_TIMESCALE, timescale_buffer);
     set_timescale();
-
   }
-    
 }
 
 static void main_window_load(Window *window) {
-  //Create GBitmap, then set to created BitmapLayer
-//   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
-//   s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
-//   bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
-//   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
   APP_LOG(APP_LOG_LEVEL_DEBUG, "main window loading");
 
-  // get bounds of watchface
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
@@ -130,50 +100,29 @@ static void main_window_load(Window *window) {
   strncpy(timescale_buffer, LOCAL_TIME, sizeof(timescale_buffer));
   APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_buffer is %s", timescale_buffer);
 
-  set_timescale();
-
-  //Create GFont
-//   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_48));
-
-
   if (persist_read_int(KEY_BACKGROUND_COLOR)) {
     int background_color = persist_read_int(KEY_BACKGROUND_COLOR);
     set_background_and_text_color(background_color);
   }
-
   if (persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT)) {
     twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
-
   char tmp_buffer[sizeof(timescale_buffer)];
   if (persist_read_string(KEY_TIMESCALE, tmp_buffer,
     			  sizeof(tmp_buffer)) > 0) {
     strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
-    
-    set_timescale();
   }
   
-  // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
-  // Make sure the time is displayed from the start
+
   update_time();
+  set_timescale();
 }
 
 static void main_window_unload(Window *window) {
-  //Unload GFont
-  //fonts_unload_custom_font(s_time_font);
-  
-  //Destroy GBitmap
-  // gbitmap_destroy(s_background_bitmap);
-
-  //Destroy BitmapLayer
-  //  bitmap_layer_destroy(s_background_layer);
-  
-  // Destroy TextLayers
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_timescale_layer);
-  
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -182,16 +131,13 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
   
 static void init() {
-  // Create main Window element and assign to pointer
   s_main_window = window_create();
  
-  // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload
   });
 
-  // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
   
   // Register with TickTimerService
@@ -202,7 +148,6 @@ static void init() {
 }
 
 static void deinit() {
-  // Destroy Window
   window_destroy(s_main_window);
 }
 
