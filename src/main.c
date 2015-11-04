@@ -18,7 +18,7 @@ static char timescale_buffer[] = LOCAL_TIME;
 
 //static GFont s_time_font;
 
-static BitmapLayer *s_background_layer;
+//static BitmapLayer *s_background_layer;
 //static GBitmap *s_background_bitmap;
 
 static void set_background_and_text_color(int color) {
@@ -54,6 +54,7 @@ static void update_time() {
 }
 
 static void set_timescale() {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_buffer is still %s!", timescale_buffer);  
   text_layer_set_text(s_timescale_layer, timescale_buffer);
 }
 
@@ -61,6 +62,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *background_color_t = dict_find(iter, KEY_BACKGROUND_COLOR);
   Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
   Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox config data received");
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -78,9 +81,14 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     update_time();
   }
 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_t = %d", (int)timescale_t);
   if (timescale_t) {
-    
-    //  persist_write_string(KEY_TIMESCALE, timescale_buffer
+    strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_t received");
+
+    persist_write_string(KEY_TIMESCALE, timescale_buffer);
+    set_timescale();
+
   }
     
 }
@@ -91,7 +99,8 @@ static void main_window_load(Window *window) {
 //   s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
 //   bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
 //   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
-  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "main window loading");
+
   // get bounds of watchface
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -118,6 +127,9 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_timescale_layer, fonts_get_system_font(
   FONT_KEY_GOTHIC_18_BOLD));
   text_layer_set_text_alignment(s_timescale_layer, GTextAlignmentCenter);
+  strncpy(timescale_buffer, LOCAL_TIME, sizeof(timescale_buffer));
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_buffer is %s", timescale_buffer);
+
   set_timescale();
 
   //Create GFont
@@ -133,11 +145,13 @@ static void main_window_load(Window *window) {
     twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
 
-  if (persist_read_string(KEY_TIMESCALE, timescale_buffer,
-			  sizeof(timescale_buffer))) {
+  char tmp_buffer[sizeof(timescale_buffer)];
+  if (persist_read_string(KEY_TIMESCALE, tmp_buffer,
+    			  sizeof(tmp_buffer)) > 0) {
+    strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
+    
     set_timescale();
   }
-  
   
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
@@ -154,7 +168,7 @@ static void main_window_unload(Window *window) {
   // gbitmap_destroy(s_background_bitmap);
 
   //Destroy BitmapLayer
-  bitmap_layer_destroy(s_background_layer);
+  //  bitmap_layer_destroy(s_background_layer);
   
   // Destroy TextLayers
   text_layer_destroy(s_time_layer);
