@@ -49,7 +49,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox config data received");
-
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "background_color_t = %d", (int)background_color_t);
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
     persist_write_int(KEY_BACKGROUND_COLOR, background_color);
