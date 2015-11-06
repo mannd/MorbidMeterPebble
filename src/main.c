@@ -29,19 +29,34 @@ static void set_background_and_text_color(int color) {
 #endif
 }
 
+static bool local_time_update_with_secs () {
+  return strcmp(local_time_update_interval_buffer, SECONDS) == 0;
+}
+
 static void update_time() {
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
   // Write the current hours and minutes into the buffer
-  if(clock_is_24h_style() == twenty_four_hour_format) {
-    strftime(time_buffer, sizeof(time_buffer),
+  if (clock_is_24h_style() == twenty_four_hour_format) {
+    if (local_time_update_with_secs()) {
+      strftime(time_buffer, sizeof(time_buffer),
              MM_TITLE DATE "\n%H:%M:%S", tick_time);
+    } else {
+      strftime(time_buffer, sizeof(time_buffer),
+             MM_TITLE DATE "\n%H:%M", tick_time);
+    }
   } else {
-    strftime(time_buffer, sizeof(time_buffer),
-             MM_TITLE DATE "\n%I:%M:%S %p", tick_time);
+    if (local_time_update_with_secs()) {
+      strftime(time_buffer, sizeof(time_buffer),
+	       MM_TITLE DATE "\n%l:%M:%S %p", tick_time);
+    } else {
+      strftime(time_buffer, sizeof(time_buffer),
+	       MM_TITLE DATE "\n%l:%M %p", tick_time);
+    }
   }
   text_layer_set_text(s_time_layer, time_buffer);
 }
+
 
 static void set_timescale() {
   text_layer_set_text(s_timescale_layer, timescale_buffer);
@@ -123,6 +138,11 @@ static void main_window_load(Window *window) {
   if (persist_read_string(KEY_TIMESCALE, tmp_buffer,
     			  sizeof(tmp_buffer)) > 0) {
     strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
+  }
+  char tmp_local_time_update_interval_buffer[sizeof(local_time_update_interval_buffer)];
+  if (persist_read_string(KEY_LOCAL_TIME_UPDATE_INTERVAL, tmp_local_time_update_interval_buffer, sizeof(local_time_update_interval_buffer)) > 0) {
+    strncpy(local_time_update_interval_buffer, tmp_local_time_update_interval_buffer,
+	    sizeof(local_time_update_interval_buffer));
   }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
