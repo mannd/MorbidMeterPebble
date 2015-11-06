@@ -15,6 +15,7 @@ static Window *s_main_window;
 static TextLayer *s_time_layer;
 static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
+static bool is_local_time = true;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = LOCAL_TIME;
 static char local_time_update_interval_buffer[] = SECONDS;
@@ -29,36 +30,44 @@ static void set_background_and_text_color(int color) {
 #endif
 }
 
-static bool local_time_update_with_secs () {
+static bool local_time_update_with_secs() {
   return strcmp(local_time_update_interval_buffer, SECONDS) == 0;
 }
 
+//static bool is_local_time() {
+
+
 static void update_time() {
-  time_t temp = time(NULL); 
-  struct tm *tick_time = localtime(&temp);
-  // Write the current hours and minutes into the buffer
-  if (clock_is_24h_style() == twenty_four_hour_format) {
-    if (local_time_update_with_secs()) {
-      strftime(time_buffer, sizeof(time_buffer),
-             MM_TITLE DATE "\n%H:%M:%S", tick_time);
+  if (is_local_time) {
+    time_t temp = time(NULL); 
+    struct tm *tick_time = localtime(&temp);
+    // Write the current hours and minutes into the buffer
+    if (clock_is_24h_style() == twenty_four_hour_format) {
+      if (local_time_update_with_secs()) {
+	strftime(time_buffer, sizeof(time_buffer),
+		 MM_TITLE DATE "\n%H:%M:%S", tick_time);
+      } else {
+	strftime(time_buffer, sizeof(time_buffer),
+		 MM_TITLE DATE "\n%H:%M", tick_time);
+      }
     } else {
-      strftime(time_buffer, sizeof(time_buffer),
-             MM_TITLE DATE "\n%H:%M", tick_time);
+      if (local_time_update_with_secs()) {
+	strftime(time_buffer, sizeof(time_buffer),
+		 MM_TITLE DATE "\n%l:%M:%S %p", tick_time);
+      } else {
+	strftime(time_buffer, sizeof(time_buffer),
+		 MM_TITLE DATE "\n%l:%M %p", tick_time);
+      }
     }
   } else {
-    if (local_time_update_with_secs()) {
-      strftime(time_buffer, sizeof(time_buffer),
-	       MM_TITLE DATE "\n%l:%M:%S %p", tick_time);
-    } else {
-      strftime(time_buffer, sizeof(time_buffer),
-	       MM_TITLE DATE "\n%l:%M %p", tick_time);
-    }
+    strcpy(time_buffer, "MorbidMeter\nTime\nSoon!");
   }
   text_layer_set_text(s_time_layer, time_buffer);
 }
 
 
 static void set_timescale() {
+  is_local_time = (strcmp(timescale_buffer, LOCAL_TIME) == 0);
   text_layer_set_text(s_timescale_layer, timescale_buffer);
 }
 
