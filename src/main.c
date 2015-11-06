@@ -15,6 +15,9 @@ static Window *s_main_window;
 static TextLayer *s_time_layer;
 static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
+
+/// TODO this nees to be an enum for all the timescales
+// enum Timescale { Local_Time, etc. }
 static bool is_local_time = true;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = LOCAL_TIME;
@@ -33,9 +36,6 @@ static void set_background_and_text_color(int color) {
 static bool local_time_update_with_secs() {
   return strcmp(local_time_update_interval_buffer, SECONDS) == 0;
 }
-
-//static bool is_local_time() {
-
 
 static void update_time() {
   if (is_local_time) {
@@ -170,6 +170,14 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
 
+static void tap_handler(AccelAxisType axis, int32_t direction) {
+  /* (void)axis; */
+  /* (void)direction; */
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "tap_handler() called");
+  is_local_time = !is_local_time;
+  // need to actually change timescales here
+}
+
   
 static void init() {
   s_main_window = window_create();
@@ -181,8 +189,8 @@ static void init() {
 
   window_stack_push(s_main_window, true);
   
-  // Register with TickTimerService
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  accel_tap_service_subscribe(tap_handler);
 
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
@@ -197,4 +205,3 @@ int main(void) {
   app_event_loop();
   deinit();
 }
-
