@@ -17,7 +17,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
     Pebble.sendAppMessage({
       backgroundColor: parseInt(configData.backgroundColor, 16),
       twentyFourHourFormat: configData.twentyFourHourFormat,
-      timescaleSelector: configData.timescaleSelector
+      timescaleSelector: configData.timescaleSelector,
+      localTimeUpdateIntervalSelector: configData.localTimeUpdateIntervalSelector,
+      morbidMeterTimeUpdateIntervalSelector: configData.morbidMeterTimeUpdateIntervalSelector
 // add rest here
     }, function() {
       console.log('Send successful!');

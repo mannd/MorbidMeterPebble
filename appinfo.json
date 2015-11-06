@@ -2,7 +2,9 @@
     "appKeys": {
 	"backgroundColor": 0,
 	"twentyFourHourFormat": 1,
-	"timescaleSelector": 2
+	"timescaleSelector": 2,
+	"localTimeUpdateIntervalSelector": 3,
+	"morbidMeterTimeUpdateIntervalSelector": 4
     },
     "capabilities": [
         "configurable"

@@ -19,13 +19,20 @@ function submitHandler() {
 function loadOptions() {
   var $backgroundColorPicker = $('#backgroundColorPicker');
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
-  var $timescaleSelector =$('#timescaleSelector');
+  var $timescaleSelector = $('#timescaleSelector');
+  var $localTimeUpdateIntervalSelector = $('#localTimeUpdateIntervalSelector');
+  var $morbidMeterTimeUpdateIntervalSelector =
+    $('#morbidMeterTimeUpdateIntervalSelector');
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
     $timeFormatCheckbox[0].checked =
       (localStorage.twentyFourHourFormat === 'true');
     $timescaleSelector[0].value = localStorage.timescaleSelector;
+    $localTimeUpdateIntervalSelector[0].value =
+      localStorage.localTimeUpdateIntervalSelector;
+    $morbidMeterTimeUpdateIntervalSelector[0].value =
+      localStorage.morbidMeterTimeUpdateIntervalSelector;
   }
 }
 
@@ -33,16 +40,25 @@ function getAndStoreConfigData() {
   var $backgroundColorPicker = $('#backgroundColorPicker');
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
   var $timescaleSelector =$('#timescaleSelector');
+  var $localTimeUpdateIntervalSelector = $('#localTimeUpdateIntervalSelector');
+  var $morbidMeterTimeUpdateIntervalSelector =
+    $('#morbidMeterTimeUpdateIntervalSelector');
 
   var options = {
     backgroundColor: $backgroundColorPicker.val(),
     twentyFourHourFormat: $timeFormatCheckbox[0].checked,
-    timescaleSelector: $timescaleSelector.val()
+    timescaleSelector: $timescaleSelector.val(),
+    localTimeUpdateIntervalSelector: $localTimeUpdateIntervalSelector.val(),
+    morbidMeterTimeUpdateIntervalSelector: $morbidMeterTimeUpdateIntervalSelector.val()
   };
 
   localStorage.backgroundColor = options.backgroundColor;
   localStorage.twentyFourHourFormat = options.twentyFourHourFormat;
   localStorage.timescaleSelector = options.timescaleSelector;
+  localStorage.localTimeUpdateIntervalSelector =
+    options.localTimeUpdateIntervalSelector;
+  localStorage.morbidMeterTimeUpdateIntervalSelector =
+    options.morbidMeterTimeUpdateIntervalSelector;
 
   console.log('Got options: ' + JSON.stringify(options));
   return options;

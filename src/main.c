@@ -3,10 +3,13 @@
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
 #define LOCAL_TIME "Local Time"
+#define SECONDS "Seconds"
 
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
+#define KEY_LOCAL_TIME_UPDATE_INTERVAL 3
+#define KEY_MM_TIME_UPDATE_INTERVAL 4
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -14,6 +17,8 @@ static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = LOCAL_TIME;
+static char local_time_update_interval_buffer[] = SECONDS;
+static char mm_time_update_interval_buffer[] = SECONDS;
 
 static void set_background_and_text_color(int color) {
 #ifdef PBL_SDK_3
@@ -39,7 +44,6 @@ static void update_time() {
 }
 
 static void set_timescale() {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_buffer is still %s!", timescale_buffer);  
   text_layer_set_text(s_timescale_layer, timescale_buffer);
 }
 
@@ -47,9 +51,9 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *background_color_t = dict_find(iter, KEY_BACKGROUND_COLOR);
   Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
   Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
+  Tuple *local_time_update_interval_t = dict_find(iter, KEY_LOCAL_TIME_UPDATE_INTERVAL);
+  Tuple *mm_time_update_interval_t = dict_find(iter, KEY_MM_TIME_UPDATE_INTERVAL);
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox config data received");
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "background_color_t = %d", (int)background_color_t);
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
     persist_write_int(KEY_BACKGROUND_COLOR, background_color);
@@ -60,17 +64,26 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
     update_time();
   }
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_t = %d", (int)timescale_t);
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_t received");
     persist_write_string(KEY_TIMESCALE, timescale_buffer);
     set_timescale();
+  }
+  if (local_time_update_interval_t) {
+    strncpy(local_time_update_interval_buffer, local_time_update_interval_t->value->cstring,
+	    sizeof(local_time_update_interval_buffer));
+    persist_write_string(KEY_LOCAL_TIME_UPDATE_INTERVAL, local_time_update_interval_buffer);
+    // update local time interval
+  }
+  if (mm_time_update_interval_t) {
+    strncpy(mm_time_update_interval_buffer, mm_time_update_interval_t->value->cstring,
+	    sizeof(mm_time_update_interval_buffer));
+    persist_write_string(KEY_MM_TIME_UPDATE_INTERVAL, mm_time_update_interval_buffer);
+    // update mm time interval
   }
 }
 
 static void main_window_load(Window *window) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "main window loading");
 
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -98,7 +111,6 @@ static void main_window_load(Window *window) {
   FONT_KEY_GOTHIC_18_BOLD));
   text_layer_set_text_alignment(s_timescale_layer, GTextAlignmentCenter);
   strncpy(timescale_buffer, LOCAL_TIME, sizeof(timescale_buffer));
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale_buffer is %s", timescale_buffer);
 
   if (persist_read_int(KEY_BACKGROUND_COLOR)) {
     int background_color = persist_read_int(KEY_BACKGROUND_COLOR);
