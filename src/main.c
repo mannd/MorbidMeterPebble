@@ -8,7 +8,7 @@
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
-#define KEY_LOCAL_TIME_UPDATE_INTERVAL 3
+#define KEY_LOCAL_TIME_SHOW_SECONDS 3
 #define KEY_MM_TIME_UPDATE_INTERVAL 4
     
 static Window *s_main_window;
@@ -16,12 +16,12 @@ static TextLayer *s_time_layer;
 static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 
-/// TODO this nees to be an enum for all the timescales
+/// TODO this needs to be an enum for all the timescales
 // enum Timescale { Local_Time, etc. }
 static bool is_local_time = true;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = LOCAL_TIME;
-static char local_time_update_interval_buffer[] = SECONDS;
+static bool local_time_show_seconds = true;
 static char mm_time_update_interval_buffer[] = SECONDS;
 
 static void set_background_and_text_color(int color) {
@@ -34,7 +34,7 @@ static void set_background_and_text_color(int color) {
 }
 
 static bool local_time_update_with_secs() {
-  return strcmp(local_time_update_interval_buffer, SECONDS) == 0;
+  return local_time_show_seconds;
 }
 
 static void update_time() {
@@ -75,7 +75,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *background_color_t = dict_find(iter, KEY_BACKGROUND_COLOR);
   Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
   Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
-  Tuple *local_time_update_interval_t = dict_find(iter, KEY_LOCAL_TIME_UPDATE_INTERVAL);
+  Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
   Tuple *mm_time_update_interval_t = dict_find(iter, KEY_MM_TIME_UPDATE_INTERVAL);
 
   if (background_color_t) {
@@ -93,11 +93,10 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_string(KEY_TIMESCALE, timescale_buffer);
     set_timescale();
   }
-  if (local_time_update_interval_t) {
-    strncpy(local_time_update_interval_buffer, local_time_update_interval_t->value->cstring,
-	    sizeof(local_time_update_interval_buffer));
-    persist_write_string(KEY_LOCAL_TIME_UPDATE_INTERVAL, local_time_update_interval_buffer);
-    // update local time interval
+  if (local_time_show_seconds_t) {
+    local_time_show_seconds = local_time_show_seconds_t->value->int8;
+    persist_write_int(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
+    update_time();
   }
   if (mm_time_update_interval_t) {
     strncpy(mm_time_update_interval_buffer, mm_time_update_interval_t->value->cstring,
@@ -148,10 +147,8 @@ static void main_window_load(Window *window) {
     			  sizeof(tmp_buffer)) > 0) {
     strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
   }
-  char tmp_local_time_update_interval_buffer[sizeof(local_time_update_interval_buffer)];
-  if (persist_read_string(KEY_LOCAL_TIME_UPDATE_INTERVAL, tmp_local_time_update_interval_buffer, sizeof(local_time_update_interval_buffer)) > 0) {
-    strncpy(local_time_update_interval_buffer, tmp_local_time_update_interval_buffer,
-	    sizeof(local_time_update_interval_buffer));
+  if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
+      local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
   }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
