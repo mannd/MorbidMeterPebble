@@ -21,8 +21,6 @@ function loadOptions() {
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
   var $timescaleSelector = $('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
-  var $morbidMeterTimeUpdateIntervalSelector =
-    $('#morbidMeterTimeUpdateIntervalSelector');
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
@@ -31,8 +29,6 @@ function loadOptions() {
     $timescaleSelector[0].value = localStorage.timescaleSelector;
     $localTimeShowSecondsCheckBox[0].checked =
       (localStorage.localTimeShowSecondsCheckBox === 'true');
-    $morbidMeterTimeUpdateIntervalSelector[0].value =
-      localStorage.morbidMeterTimeUpdateIntervalSelector;
   }
 }
 
@@ -41,15 +37,12 @@ function getAndStoreConfigData() {
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
   var $timescaleSelector =$('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
-  var $morbidMeterTimeUpdateIntervalSelector =
-    $('#morbidMeterTimeUpdateIntervalSelector');
 
   var options = {
     backgroundColor: $backgroundColorPicker.val(),
     twentyFourHourFormat: $timeFormatCheckbox[0].checked,
     timescaleSelector: $timescaleSelector.val(),
     localTimeShowSecondsCheckBox: $localTimeShowSecondsCheckBox[0].checked,
-    morbidMeterTimeUpdateIntervalSelector: $morbidMeterTimeUpdateIntervalSelector.val()
   };
 
   localStorage.backgroundColor = options.backgroundColor;
@@ -57,8 +50,6 @@ function getAndStoreConfigData() {
   localStorage.timescaleSelector = options.timescaleSelector;
   localStorage.localTimeUpdateIntervalSelector =
     options.localTimeUpdateIntervalSelector;
-  localStorage.morbidMeterTimeUpdateIntervalSelector =
-    options.morbidMeterTimeUpdateIntervalSelector;
 
   console.log('Got options: ' + JSON.stringify(options));
   return options;

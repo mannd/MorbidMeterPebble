@@ -19,7 +19,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
       twentyFourHourFormat: configData.twentyFourHourFormat,
       timescaleSelector: configData.timescaleSelector,
       localTimeShowSecondsCheckBox: configData.localTimeShowSecondsCheckBox,
-      morbidMeterTimeUpdateIntervalSelector: configData.morbidMeterTimeUpdateIntervalSelector
 // add rest here
     }, function() {
       console.log('Send successful!');

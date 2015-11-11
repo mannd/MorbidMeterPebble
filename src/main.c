@@ -4,12 +4,27 @@
 #define DATE "%n%b %e %Y"
 #define LOCAL_TIME "Local Time"
 #define SECONDS "Seconds"
+#define MINUTES "Minutes"
+#define HOURS "Hours"
+#define DAYS "Days"
+#define DAYS_HOURS_MINS_SECS "D H M S"
+#define YEARS "Years"
+#define DAY "Day"
+#define HOUR "Hour"
+#define MONTH "Month"
+#define YEAR "Year"
+#define UNIVERSE "Universe"
+#define X_UNIVERSE "X Universe"
+#define X_UNIVERSE_2 "X Universe 2"
+#define PERCENT "Percent"
+#define NONE "None"
+#define DEBUG "Debug"
+
 
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
 #define KEY_LOCAL_TIME_SHOW_SECONDS 3
-#define KEY_MM_TIME_UPDATE_INTERVAL 4
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -23,6 +38,30 @@ static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = LOCAL_TIME;
 static bool local_time_show_seconds = true;
 static char mm_time_update_interval_buffer[] = SECONDS;
+
+typedef enum {
+  TS_LOCAL_TIME,
+  TS_SECONDS,
+  TS_MINUTES,
+  TS_HOURS,
+  TS_DAYS,
+  TS_DAYS_HOURS_MINS_SECS,
+  TS_YEARS,
+  TS_DAY,
+  TS_HOUR,
+  TS_MONTH,
+  TS_YEAR,
+  TS_UNIVERSE,
+  TS_X_UNIVERSE,
+  TS_X_UNIVERSE_2,
+  TS_PERCENT,
+  TS_NONE,
+  TS_DEBUG
+} timescale;
+
+static timescale selected_timescale = TS_LOCAL_TIME;
+static timescale displayed_timescale = TS_LOCAL_TIME;
+
 
 static void set_background_and_text_color(int color) {
 #ifdef PBL_SDK_3
@@ -76,7 +115,6 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
   Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
   Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
-  Tuple *mm_time_update_interval_t = dict_find(iter, KEY_MM_TIME_UPDATE_INTERVAL);
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -98,11 +136,53 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_int(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
     update_time();
   }
-  if (mm_time_update_interval_t) {
-    strncpy(mm_time_update_interval_buffer, mm_time_update_interval_t->value->cstring,
-	    sizeof(mm_time_update_interval_buffer));
-    persist_write_string(KEY_MM_TIME_UPDATE_INTERVAL, mm_time_update_interval_buffer);
-    // update mm time interval
+}
+
+static void set_selected_timescale() {
+  if (strcmp(timescale_buffer, LOCAL_TIME)) {
+    selected_timescale = TS_LOCAL_TIME;
+  }
+  else if (strcmp(timescale_buffer, SECONDS)) {
+    selected_timescale = TS_SECONDS;
+  }
+  else if (strcmp(timescale_buffer, MINUTES)) {
+    selected_timescale = TS_MINUTES;
+  }
+  else if (strcmp(timescale_buffer, HOURS)) {
+    selected_timescale = TS_HOURS;
+  }
+  else if (strcmp(timescale_buffer, DAYS)) {
+    selected_timescale = TS_DAYS;
+  }
+  else if (strcmp(timescale_buffer, YEARS)) {
+    selected_timescale = TS_YEARS;
+  }
+  else if (strcmp(timescale_buffer, DAY)) {
+    selected_timescale = TS_DAY;
+  }
+  else if (strcmp(timescale_buffer, HOUR)) {
+    selected_timescale = TS_HOUR;
+  }
+  else if (strcmp(timescale_buffer, MONTH)) {
+    selected_timescale = TS_MONTH;
+  }
+  else if (strcmp(timescale_buffer, YEAR)) {
+    selected_timescale = TS_YEAR;
+  }
+  else if (strcmp(timescale_buffer, UNIVERSE)) {
+    selected_timescale = TS_UNIVERSE;
+  }
+  else if (strcmp(timescale_buffer, X_UNIVERSE)) {
+    selected_timescale = TS_X_UNIVERSE;
+  }
+  else if (strcmp(timescale_buffer, PERCENT)) {
+    selected_timescale = TS_PERCENT;
+  }
+  else if (strcmp(timescale_buffer, NONE)) {
+    selected_timescale = TS_NONE;
+  }
+  else if (strcmp(timescale_buffer, DEBUG)) {
+    selected_timescale = TS_DEBUG;
   }
 }
 
@@ -146,6 +226,7 @@ static void main_window_load(Window *window) {
   if (persist_read_string(KEY_TIMESCALE, tmp_buffer,
     			  sizeof(tmp_buffer)) > 0) {
     strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
+    set_selected_timescale();
   }
   if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
       local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
@@ -171,6 +252,7 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   /* (void)axis; */
   /* (void)direction; */
   APP_LOG(APP_LOG_LEVEL_DEBUG, "tap_handler() called");
+  // return if Local Time or config doesn't allow shaking
   is_local_time = !is_local_time;
   // need to actually change timescales here
 }

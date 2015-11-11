@@ -3,8 +3,7 @@
 	"backgroundColor": 0,
 	"twentyFourHourFormat": 1,
 	"timescaleSelector": 2,
-	"localTimeShowSecondsCheckBox": 3,
-	"morbidMeterTimeUpdateIntervalSelector": 4
+	"localTimeShowSecondsCheckBox": 3
     },
     "capabilities": [
         "configurable"

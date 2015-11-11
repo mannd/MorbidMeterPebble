@@ -29,6 +29,10 @@
         24-Hour Format
         <input id='timeFormatCheckbox' type='checkbox' class='item-checkbox' checked>
       </label>
+      <label class='item'>
+	Local Time Show Seconds
+	<input id='localTimeShowSecondsCheckBox' type="checkbox" class="item-checkbox" checked>
+      </label>
     </div>
   </div>
 
@@ -43,10 +47,16 @@
           <option class="item-select-option">Minutes</option>
           <option class="item-select-option">Hours</option>
           <option class="item-select-option">Days</option>
+	  <option class="item-select-option">Days Hours Mins Secs</option>
           <option class="item-select-option">Years</option>
+          <option class="item-select-option">One Hour</option>
           <option class="item-select-option">One Day</option>
+          <option class="item-select-option">One Month</option>
           <option class="item-select-option">One Year</option>
-	  <!-- insert more items here after testing -->
+          <option class="item-select-option">Universe</option>
+          <option class="item-select-option">X Universe</option>
+          <option class="item-select-options">X Universe 2</option>
+          <option class="item-select-option">Percent</option>
 	</select>
       </label>
       <label class='item'>
@@ -68,17 +78,6 @@
       <label class="item">
 	End Time
 	<input id='endTime' type="time" class="item-time" name="time-1" value="18:35">
-      </label>
-      <label class='item'>
-	Local Time Show Seconds
-	<input id='localTimeShowSecondsCheckBox' type="checkbox" class="item-checkbox" checked>
-      </label>
-      <label class='item'>
-        MorbidMeter Time Update Interval
-	<select id='morbidMeterTimeUpdateIntervalSelector' name="select-1" dir='rtl' class="item-select">
-          <option class="item-select-option" selected>Seconds</option>
-          <option class="item-select-option">Minutes</option>
-	</select>
       </label>
     </div>
     <div class='item-container-footer'>
