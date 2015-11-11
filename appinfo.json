@@ -3,7 +3,8 @@
 	"backgroundColor": 0,
 	"twentyFourHourFormat": 1,
 	"timescaleSelector": 2,
-	"localTimeShowSecondsCheckBox": 3
+	"localTimeShowSecondsCheckBox": 3,
+	"shakeWristTogglesTimeCheckBox": 4
     },
     "capabilities": [
         "configurable"

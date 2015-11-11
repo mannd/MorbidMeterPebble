@@ -2,6 +2,8 @@
 
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
+
+/* timescales - these strings must match the strings in index.html */
 #define LOCAL_TIME "Local Time"
 #define SECONDS "Seconds"
 #define MINUTES "Minutes"
@@ -20,7 +22,6 @@
 #define NONE "None"
 #define DEBUG "Debug"
 
-
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
@@ -35,7 +36,7 @@ static bool twenty_four_hour_format = false;
 // enum Timescale { Local_Time, etc. }
 static bool is_local_time = true;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
-static char timescale_buffer[] = LOCAL_TIME;
+static char timescale_buffer[] = "   " LOCAL_TIME;
 static bool local_time_show_seconds = true;
 static char mm_time_update_interval_buffer[] = SECONDS;
 
@@ -61,7 +62,6 @@ typedef enum {
 
 static timescale selected_timescale = TS_LOCAL_TIME;
 static timescale displayed_timescale = TS_LOCAL_TIME;
-
 
 static void set_background_and_text_color(int color) {
 #ifdef PBL_SDK_3
@@ -103,7 +103,6 @@ static void update_time() {
   }
   text_layer_set_text(s_time_layer, time_buffer);
 }
-
 
 static void set_timescale() {
   is_local_time = (strcmp(timescale_buffer, LOCAL_TIME) == 0);
@@ -256,7 +255,6 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   is_local_time = !is_local_time;
   // need to actually change timescales here
 }
-
   
 static void init() {
   s_main_window = window_create();

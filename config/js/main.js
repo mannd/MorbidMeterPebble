@@ -21,6 +21,7 @@ function loadOptions() {
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
   var $timescaleSelector = $('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
+  var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
@@ -29,6 +30,9 @@ function loadOptions() {
     $timescaleSelector[0].value = localStorage.timescaleSelector;
     $localTimeShowSecondsCheckBox[0].checked =
       (localStorage.localTimeShowSecondsCheckBox === 'true');
+    $shakeWristTogglesTimeCheckBox[0].checked =
+      (localStorage.shakeWristTogglesTimeCheckBox === 'true');
+
   }
 }
 
@@ -37,12 +41,14 @@ function getAndStoreConfigData() {
   var $timeFormatCheckbox = $('#timeFormatCheckbox');
   var $timescaleSelector =$('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
+  var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
 
   var options = {
     backgroundColor: $backgroundColorPicker.val(),
     twentyFourHourFormat: $timeFormatCheckbox[0].checked,
     timescaleSelector: $timescaleSelector.val(),
     localTimeShowSecondsCheckBox: $localTimeShowSecondsCheckBox[0].checked,
+    shakeWristTogglesTimeCheckBox: $shakeWristTogglesTimeCheckBox[0].checked
   };
 
   localStorage.backgroundColor = options.backgroundColor;
@@ -50,6 +56,8 @@ function getAndStoreConfigData() {
   localStorage.timescaleSelector = options.timescaleSelector;
   localStorage.localTimeUpdateIntervalSelector =
     options.localTimeUpdateIntervalSelector;
+  localStorage.shakeWristTogglesTimeCheckBox =
+    options.shakeWristTogglesTimeCheckBox;
 
   console.log('Got options: ' + JSON.stringify(options));
   return options;
