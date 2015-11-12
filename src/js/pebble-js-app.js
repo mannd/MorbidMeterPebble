@@ -18,7 +18,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
       backgroundColor: parseInt(configData.backgroundColor, 16),
       twentyFourHourFormat: configData.twentyFourHourFormat,
       timescaleSelector: configData.timescaleSelector,
-      localTimeShowSecondsCheckBox: configData.localTimeShowSecondsCheckBox,
+      localTimeShowSecondsCheckBox: configData.localTimeShowSecondsCheckBox
 // add rest here
     }, function() {
       console.log('Send successful!');

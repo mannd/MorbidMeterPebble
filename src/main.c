@@ -26,19 +26,22 @@
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
 #define KEY_LOCAL_TIME_SHOW_SECONDS 3
+#define KEY_SHAKE_WRIST_TOGGLES_TIME 4
+#define KEY_REVERSE_TIME 5
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
+static bool shake_wrist_toggles_time;
+static bool reverse_time = false;
 
 /// TODO this needs to be an enum for all the timescales
 // enum Timescale { Local_Time, etc. }
 static bool is_local_time = true;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
-static char timescale_buffer[] = "   " LOCAL_TIME;
+static char timescale_buffer[] = "   " LOCAL_TIME "   ";
 static bool local_time_show_seconds = true;
-static char mm_time_update_interval_buffer[] = SECONDS;
 
 typedef enum {
   TS_LOCAL_TIME,
@@ -114,6 +117,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
   Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
   Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
+  Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
+  Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -134,6 +139,16 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     local_time_show_seconds = local_time_show_seconds_t->value->int8;
     persist_write_int(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
     update_time();
+  }
+  if (shake_wrist_toggles_time_t) {
+    shake_wrist_toggles_time = shake_wrist_toggles_time_t->value->int8;
+    persist_write_int(KEY_SHAKE_WRIST_TOGGLES_TIME, shake_wrist_toggles_time);
+  }
+  if (reverse_time_t) {
+    reverse_time = reverse_time_t->value->int8;
+    persist_write_int(KEY_REVERSE_TIME, reverse_time);
+    // update timescale and reverse time
+    // prepend '-' to timescale with reverse time?
   }
 }
 
@@ -230,6 +245,12 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
       local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
   }
+  if (persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME)) {
+    shake_wrist_toggles_time = persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME);
+  }
+  if (persist_read_bool(KEY_REVERSE_TIME)) {
+    reverse_time = persist_read_bool(KEY_REVERSE_TIME);
+  }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
@@ -250,10 +271,15 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 static void tap_handler(AccelAxisType axis, int32_t direction) {
   /* (void)axis; */
   /* (void)direction; */
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "tap_handler() called");
+  if (selected_timescale == TS_LOCAL_TIME || !shake_wrist_toggles_time) {
+    return;
+  }
   // return if Local Time or config doesn't allow shaking
   is_local_time = !is_local_time;
+  if (is_local_time) {
+    displayed_timescale = selected_timescale;
   // need to actually change timescales here
+  }
 }
   
 static void init() {

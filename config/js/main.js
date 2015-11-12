@@ -22,6 +22,7 @@ function loadOptions() {
   var $timescaleSelector = $('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
   var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
+  var $reverseTimeCheckBox = $('#reverseTimeCheckBox');
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
@@ -32,6 +33,8 @@ function loadOptions() {
       (localStorage.localTimeShowSecondsCheckBox === 'true');
     $shakeWristTogglesTimeCheckBox[0].checked =
       (localStorage.shakeWristTogglesTimeCheckBox === 'true');
+    $reverseTimeCheckBox[0].checked =
+      (localStorage.reverseTimeCheckBox === 'true');
 
   }
 }
@@ -42,6 +45,7 @@ function getAndStoreConfigData() {
   var $timescaleSelector =$('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
   var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
+  var $reverseTimeCheckBox = $('#reverseTimeCheckBox');
 
   var options = {
     backgroundColor: $backgroundColorPicker.val(),
@@ -58,6 +62,8 @@ function getAndStoreConfigData() {
     options.localTimeUpdateIntervalSelector;
   localStorage.shakeWristTogglesTimeCheckBox =
     options.shakeWristTogglesTimeCheckBox;
+  localStorage.reverseTimeCheckBox =
+    options.reverseTimeCheckBox;
 
   console.log('Got options: ' + JSON.stringify(options));
   return options;
