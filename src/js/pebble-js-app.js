@@ -3,7 +3,8 @@ Pebble.addEventListener('ready', function() {
 });
 
 Pebble.addEventListener('showConfiguration', function() {
-  var url = 'http://127.0.0.1:8080';
+//  var url = 'http://127.0.0.1:8080';
+  var url = 'http://6adb98e7.ngrok.io';
   console.log('Showing configuration page: ' + url);
   Pebble.openURL(url);
 });

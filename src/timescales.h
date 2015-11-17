@@ -1,5 +1,5 @@
-#ifndef TIMESCALES_H
-#define TIMESCALES_H
+#ifndef MM_TIMESCALES_H
+#define MM_TIMESCALES_H
 
 /* timescales - these strings must match the strings in index.html */
 #define LOCAL_TIME "Local Time"
