@@ -10,6 +10,7 @@
 #define KEY_LOCAL_TIME_SHOW_SECONDS 3
 #define KEY_SHAKE_WRIST_TOGGLES_TIME 4
 #define KEY_REVERSE_TIME 5
+#define KEY_START_DATE 6
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -17,6 +18,7 @@ static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 static bool shake_wrist_toggles_time;
 static bool reverse_time = false;
+static char start_date[] = "2015-02-12";
 
 /// TODO this needs to be an enum for all the timescales
 // enum Timescale { Local_Time, etc. }
@@ -81,6 +83,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
   Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
   Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
+  Tuple *start_date_t = dict_find(iter, KEY_START_DATE);
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -112,6 +115,11 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     // update timescale and reverse time
     // prepend '-' to timescale with reverse time?
   }
+  if (start_date_t) {
+    strncpy(start_date, start_date_t->value->cstring, sizeof(start_date));
+    persist_write_string(KEY_START_DATE, start_date);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start date is %s", start_date);
+  }
 }
 
 static void set_selected_timescale() {
@@ -119,7 +127,6 @@ static void set_selected_timescale() {
 }
 
 static void main_window_load(Window *window) {
-
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
@@ -169,6 +176,12 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_REVERSE_TIME)) {
     reverse_time = persist_read_bool(KEY_REVERSE_TIME);
   }
+  char tmp_date_buffer[sizeof(start_date)];
+  if (persist_read_string(KEY_START_DATE, tmp_date_buffer,
+    			  sizeof(tmp_date_buffer)) > 0) {
+    strncpy(start_date, tmp_date_buffer, sizeof(start_date));
+  }
+
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
