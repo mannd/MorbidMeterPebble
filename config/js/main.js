@@ -46,12 +46,12 @@ function loadOptions() {
   }
 }
 
-// function getTimeFromDateAndTime(date, time) {
-//   var dateParts = date.split('-');
-//   var timeParts = time.split(':');
-//   var date =  new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]);
-//   return date.getTime() / 1000;   // Pebble uses secs not msec for time
-// }
+function getTimeFromDateAndTime(date, time) {
+  var dateParts = date.split('-');
+  var timeParts = time.split(':');
+  var d =  new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], 0);
+  return d.getTime() / 1000;   // Pebble uses secs not msec for time
+}
 
 
 function getAndStoreConfigData() {
@@ -94,6 +94,13 @@ function getAndStoreConfigData() {
   localStorage.endTime = options.endTime;
 
   console.log('Got options: ' + JSON.stringify(options));
+
+  var startDateTime = getTimeFromDateAndTime($startDate.val(),
+                                             $startTime.val());
+  // test 
+  console.log('N of secs: ' + startDateTime);
+  // send startDateTime and endDateTime to watch
+
   return options;
 }
 
