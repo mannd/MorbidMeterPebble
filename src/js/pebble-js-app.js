@@ -25,7 +25,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
       startDate: configData.startDate,
       startTime: configData.startTime,
       endDate: configData.endDate,
-      endTime: configData.endTime
+      endTime: configData.endTime,
+      startDateTimeInSecs: configData.startDateTimeInSecs,
+      endDateTimeInSecs: configData.endDateTimeInSecs
 // add rest here
     }, function() {
       console.log('Send successful!');

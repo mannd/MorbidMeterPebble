@@ -14,8 +14,8 @@
 #define KEY_START_TIME 7
 #define KEY_END_DATE 8
 #define KEY_END_TIME 9
-#define KEY_START_TIME_T 10
-#define KEY_END_TIME_T 11
+#define KEY_START_DATE_TIME_IN_SECS 10
+#define KEY_END_DATE_TIME_IN_SECS 11
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;

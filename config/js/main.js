@@ -28,6 +28,9 @@ function loadOptions() {
   var $endDate = $('#endDate');
   var $endTime = $('#endTime');
 
+  // for development only!
+  localStorage.clear();
+
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
     $timeFormatCheckbox[0].checked =
@@ -76,7 +79,11 @@ function getAndStoreConfigData() {
     startDate: $startDate.val(),
     startTime: $startTime.val(),
     endDate: $endDate.val(),
-    endTime: $endTime.val()
+    endTime: $endTime.val(),
+    startDateTimeInSecs: getTimeFromDateAndTime($startDate.val(),
+                                             $startTime.val()),
+    endDateTimeInSecs: getTimeFromDateAndTime($endDate.val(),
+                                             $endTime.val())
   };
 
   localStorage.backgroundColor = options.backgroundColor;
@@ -94,12 +101,6 @@ function getAndStoreConfigData() {
   localStorage.endTime = options.endTime;
 
   console.log('Got options: ' + JSON.stringify(options));
-
-  var startDateTime = getTimeFromDateAndTime($startDate.val(),
-                                             $startTime.val());
-  // test 
-  console.log('N of secs: ' + startDateTime);
-  // send startDateTime and endDateTime to watch
 
   return options;
 }
