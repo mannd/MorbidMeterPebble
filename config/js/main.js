@@ -24,6 +24,9 @@ function loadOptions() {
   var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
   var $reverseTimeCheckBox = $('#reverseTimeCheckBox');
   var $startDate = $('#startDate');
+  var $startTime = $('#startTime');
+  var $endDate = $('#endDate');
+  var $endTime = $('#endTime');
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
@@ -37,9 +40,19 @@ function loadOptions() {
     $reverseTimeCheckBox[0].checked =
       (localStorage.reverseTimeCheckBox === 'true');
     $startDate[0].value = localStorage.startDate;
-
+    $startTime[0].value = localStorage.startTime;
+    $endDate[0].value = localStorage.endDate;
+    $endTime[0].value = localStorage.endTime;
   }
 }
+
+// function getTimeFromDateAndTime(date, time) {
+//   var dateParts = date.split('-');
+//   var timeParts = time.split(':');
+//   var date =  new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]);
+//   return date.getTime() / 1000;   // Pebble uses secs not msec for time
+// }
+
 
 function getAndStoreConfigData() {
   var $backgroundColorPicker = $('#backgroundColorPicker');
@@ -49,6 +62,9 @@ function getAndStoreConfigData() {
   var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
   var $reverseTimeCheckBox = $('#reverseTimeCheckBox');
   var $startDate = $('#startDate');
+  var $startTime = $('#startTime');
+  var $endDate = $('#endDate');
+  var $endTime = $('#endTime');
 
   var options = {
     backgroundColor: $backgroundColorPicker.val(),
@@ -57,7 +73,10 @@ function getAndStoreConfigData() {
     localTimeShowSecondsCheckBox: $localTimeShowSecondsCheckBox[0].checked,
     shakeWristTogglesTimeCheckBox: $shakeWristTogglesTimeCheckBox[0].checked,
     reverseTimeCheckBox: $reverseTimeCheckBox[0].checked,
-    startDate: $startDate.val()
+    startDate: $startDate.val(),
+    startTime: $startTime.val(),
+    endDate: $endDate.val(),
+    endTime: $endTime.val()
   };
 
   localStorage.backgroundColor = options.backgroundColor;
@@ -70,6 +89,9 @@ function getAndStoreConfigData() {
   localStorage.reverseTimeCheckBox =
     options.reverseTimeCheckBox;
   localStorage.startDate = options.startDate;
+  localStorage.startTime = options.startTime;
+  localStorage.endDate = options.endDate;
+  localStorage.endTime = options.endTime;
 
   console.log('Got options: ' + JSON.stringify(options));
   return options;

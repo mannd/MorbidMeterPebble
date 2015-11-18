@@ -22,7 +22,12 @@ Pebble.addEventListener('webviewclosed', function(e) {
       localTimeShowSecondsCheckBox: configData.localTimeShowSecondsCheckBox,
       shakeWristTogglesTimeCheckBox: configData.shakeWristTogglesTimeCheckBox,
       reverseTimeCheckBox: configData.reverseTimeCheckBox,
-      startDate: configData.startDate
+      startDate: configData.startDate,
+      startTime: configData.startTime,
+      endDate: configData.endDate,
+      endTime: configData.endTime,
+      startDateTime: configData.startDateTime,
+      endDateTime: configData.endDateTime
 // add rest here
     }, function() {
       console.log('Send successful!');

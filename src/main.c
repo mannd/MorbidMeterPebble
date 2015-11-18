@@ -11,6 +11,11 @@
 #define KEY_SHAKE_WRIST_TOGGLES_TIME 4
 #define KEY_REVERSE_TIME 5
 #define KEY_START_DATE 6
+#define KEY_START_TIME 7
+#define KEY_END_DATE 8
+#define KEY_END_TIME 9
+#define KEY_START_TIME_T 10
+#define KEY_END_TIME_T 11
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -19,6 +24,9 @@ static bool twenty_four_hour_format = false;
 static bool shake_wrist_toggles_time;
 static bool reverse_time = false;
 static char start_date[] = "2015-02-12";
+static char start_time[] = "10:00:00";
+static char end_date[] = "2016-02-12";
+static char end_time[] = "10:00:00";
 
 /// TODO this needs to be an enum for all the timescales
 // enum Timescale { Local_Time, etc. }
@@ -181,7 +189,19 @@ static void main_window_load(Window *window) {
     			  sizeof(tmp_date_buffer)) > 0) {
     strncpy(start_date, tmp_date_buffer, sizeof(start_date));
   }
-
+  char tmp_time_buffer[sizeof(start_time)];
+  if (persist_read_string(KEY_START_TIME, tmp_time_buffer,
+			  sizeof(tmp_time_buffer)) > 0) {
+    strncpy(start_time, tmp_time_buffer, sizeof(start_time));
+  }
+  if (persist_read_string(KEY_END_DATE, tmp_date_buffer,
+    			  sizeof(tmp_date_buffer)) > 0) {
+    strncpy(end_date, tmp_date_buffer, sizeof(end_date));
+  }
+  if (persist_read_string(KEY_END_TIME, tmp_time_buffer,
+			  sizeof(tmp_time_buffer)) > 0) {
+    strncpy(end_time, tmp_time_buffer, sizeof(end_time));
+  }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
