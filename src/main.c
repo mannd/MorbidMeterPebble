@@ -23,10 +23,6 @@ static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 static bool shake_wrist_toggles_time;
 static bool reverse_time = false;
-static char start_date[] = "2015-02-12";
-static char start_time[] = "10:00:00";
-static char end_date[] = "2016-02-12";
-static char end_time[] = "10:00:00";
 static time_t start_date_time_in_secs = 0;
 static time_t end_date_time_in_secs = 0;
 
@@ -93,7 +89,6 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
   Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
   Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
-  Tuple *start_date_t = dict_find(iter, KEY_START_DATE);
   Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS);
   Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS);
 
@@ -127,16 +122,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     // update timescale and reverse time
     // prepend '-' to timescale with reverse time?
   }
-  if (start_date_t) {
-    strncpy(start_date, start_date_t->value->cstring, sizeof(start_date));
-    persist_write_string(KEY_START_DATE, start_date);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start date is %s", start_date);
-  }
   if (start_date_time_in_secs_t) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs_t = %lu",
 	    start_date_time_in_secs_t->value->uint32);
     char tmp_date_buf[30];
     start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
+    persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
     struct tm *time_struct = localtime(&start_date_time_in_secs);
     strftime(tmp_date_buf, sizeof(tmp_date_buf),
 	     DATE "\n%l:%M %p", time_struct);
@@ -151,13 +142,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 	    end_date_time_in_secs_t->value->uint32);
     char tmp_date_buf[30];
     end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
+    persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
     struct tm *time_struct = localtime(&end_date_time_in_secs);
     strftime(tmp_date_buf, sizeof(tmp_date_buf),
 	     DATE "\n%l:%M %p", time_struct);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs_t = %lu",
 	    end_date_time_in_secs_t->value->uint32);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "clock_is_timezone_set = %s",
-	    (clock_is_timezone_set() ? "true" : "false"));
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time = %s", tmp_date_buf);
   }
     
@@ -217,23 +207,11 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_REVERSE_TIME)) {
     reverse_time = persist_read_bool(KEY_REVERSE_TIME);
   }
-  char tmp_date_buffer[sizeof(start_date)];
-  if (persist_read_string(KEY_START_DATE, tmp_date_buffer,
-    			  sizeof(tmp_date_buffer)) > 0) {
-    strncpy(start_date, tmp_date_buffer, sizeof(start_date));
+  if (persist_read_int(KEY_START_DATE_TIME_IN_SECS)) {
+    start_date_time_in_secs = persist_read_int(KEY_START_DATE_TIME_IN_SECS);
   }
-  char tmp_time_buffer[sizeof(start_time)];
-  if (persist_read_string(KEY_START_TIME, tmp_time_buffer,
-			  sizeof(tmp_time_buffer)) > 0) {
-    strncpy(start_time, tmp_time_buffer, sizeof(start_time));
-  }
-  if (persist_read_string(KEY_END_DATE, tmp_date_buffer,
-    			  sizeof(tmp_date_buffer)) > 0) {
-    strncpy(end_date, tmp_date_buffer, sizeof(end_date));
-  }
-  if (persist_read_string(KEY_END_TIME, tmp_time_buffer,
-			  sizeof(tmp_time_buffer)) > 0) {
-    strncpy(end_time, tmp_time_buffer, sizeof(end_time));
+  if (persist_read_int(KEY_END_DATE_TIME_IN_SECS)) {
+    end_date_time_in_secs = persist_read_int(KEY_END_DATE_TIME_IN_SECS);
   }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
