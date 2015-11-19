@@ -27,6 +27,8 @@ static char start_date[] = "2015-02-12";
 static char start_time[] = "10:00:00";
 static char end_date[] = "2016-02-12";
 static char end_time[] = "10:00:00";
+static time_t start_date_time_in_secs = 0;
+static time_t end_date_time_in_secs = 0;
 
 /// TODO this needs to be an enum for all the timescales
 // enum Timescale { Local_Time, etc. }
@@ -92,6 +94,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
   Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
   Tuple *start_date_t = dict_find(iter, KEY_START_DATE);
+  Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS);
+  Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS);
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -128,6 +132,35 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_string(KEY_START_DATE, start_date);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start date is %s", start_date);
   }
+  if (start_date_time_in_secs_t) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs_t = %lu",
+	    start_date_time_in_secs_t->value->uint32);
+    char tmp_date_buf[30];
+    start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
+    struct tm *time_struct = localtime(&start_date_time_in_secs);
+    strftime(tmp_date_buf, sizeof(tmp_date_buf),
+	     DATE "\n%l:%M %p", time_struct);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs_t = %lu",
+	    start_date_time_in_secs_t->value->uint32);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "clock_is_timezone_set = %s",
+	    (clock_is_timezone_set() ? "true" : "false"));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time = %s", tmp_date_buf);
+  }
+  if (end_date_time_in_secs_t) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs_t = %lu",
+	    end_date_time_in_secs_t->value->uint32);
+    char tmp_date_buf[30];
+    end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
+    struct tm *time_struct = localtime(&end_date_time_in_secs);
+    strftime(tmp_date_buf, sizeof(tmp_date_buf),
+	     DATE "\n%l:%M %p", time_struct);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs_t = %lu",
+	    end_date_time_in_secs_t->value->uint32);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "clock_is_timezone_set = %s",
+	    (clock_is_timezone_set() ? "true" : "false"));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time = %s", tmp_date_buf);
+  }
+    
 }
 
 static void set_selected_timescale() {
