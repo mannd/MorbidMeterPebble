@@ -29,7 +29,7 @@ function loadOptions() {
   var $endTime = $('#endTime');
 
   // for development only!
-  // localStorage.clear();
+  //localStorage.clear();
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
@@ -89,8 +89,8 @@ function getAndStoreConfigData() {
   localStorage.backgroundColor = options.backgroundColor;
   localStorage.twentyFourHourFormat = options.twentyFourHourFormat;
   localStorage.timescaleSelector = options.timescaleSelector;
-  localStorage.localTimeUpdateIntervalSelector =
-    options.localTimeUpdateIntervalSelector;
+  localStorage.localTimeShowSecondsCheckbox =
+    options.localTimeShowSecondsCheckbox;
   localStorage.shakeWristTogglesTimeCheckBox =
     options.shakeWristTogglesTimeCheckBox;
   localStorage.reverseTimeCheckBox =
