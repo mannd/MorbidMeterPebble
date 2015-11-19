@@ -26,15 +26,13 @@ static bool reverse_time = false;
 static time_t start_date_time_in_secs = 0;
 static time_t end_date_time_in_secs = 0;
 
-/// TODO this needs to be an enum for all the timescales
-// enum Timescale { Local_Time, etc. }
-static bool is_local_time = true;
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
 static bool local_time_show_seconds = true;
 
 static timescale selected_timescale = TS_LOCAL_TIME;
 static timescale displayed_timescale = TS_LOCAL_TIME;
+static timescale alternative_timescale = TS_LOCAL_TIME;
 
 static void set_background_and_text_color(int color) {
 #ifdef PBL_SDK_3
@@ -45,17 +43,13 @@ static void set_background_and_text_color(int color) {
 #endif
 }
 
-static bool local_time_update_with_secs() {
-  return local_time_show_seconds;
-}
-
 static void update_time() {
-  if (is_local_time) {
+  if (displayed_timescale == TS_LOCAL_TIME) {
     time_t temp = time(NULL); 
     struct tm *tick_time = localtime(&temp);
     // Write the current hours and minutes into the buffer
-    if (clock_is_24h_style() == twenty_four_hour_format) {
-      if (local_time_update_with_secs()) {
+    if (twenty_four_hour_format) {
+      if (local_time_show_seconds) {
 	strftime(time_buffer, sizeof(time_buffer),
 		 MM_TITLE DATE "\n%H:%M:%S", tick_time);
       } else {
@@ -63,7 +57,7 @@ static void update_time() {
 		 MM_TITLE DATE "\n%H:%M", tick_time);
       }
     } else {
-      if (local_time_update_with_secs()) {
+      if (local_time_show_seconds) {
 	strftime(time_buffer, sizeof(time_buffer),
 		 MM_TITLE DATE "\n%l:%M:%S %p", tick_time);
       } else {
@@ -78,8 +72,8 @@ static void update_time() {
 }
 
 static void set_timescale() {
-  is_local_time = (strcmp(timescale_buffer, LOCAL_TIME) == 0);
-  text_layer_set_text(s_timescale_layer, timescale_buffer);
+  text_layer_set_text(s_timescale_layer, get_string_from_timescale(displayed_timescale));
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "displayed ts = %s", get_string_from_timescale(displayed_timescale));
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
@@ -100,17 +94,18 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   if (twenty_four_hour_format_t) {
     twenty_four_hour_format = twenty_four_hour_format_t->value->int8;
     persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
-    update_time();
   }
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
     persist_write_string(KEY_TIMESCALE, timescale_buffer);
-    set_timescale();
+    selected_timescale = get_timescale_from_string(timescale_buffer);
+    displayed_timescale = selected_timescale;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "selected ts = %d", selected_timescale);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "displayed ts = %d", displayed_timescale);
   }
   if (local_time_show_seconds_t) {
     local_time_show_seconds = local_time_show_seconds_t->value->int8;
     persist_write_int(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
-    update_time();
   }
   if (shake_wrist_toggles_time_t) {
     shake_wrist_toggles_time = shake_wrist_toggles_time_t->value->int8;
@@ -125,36 +120,32 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   if (start_date_time_in_secs_t) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs_t = %lu",
 	    start_date_time_in_secs_t->value->uint32);
-    char tmp_date_buf[30];
+    char tmp_date_buffer[30];
     start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
     struct tm *time_struct = localtime(&start_date_time_in_secs);
-    strftime(tmp_date_buf, sizeof(tmp_date_buf),
+    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
 	     DATE "\n%l:%M %p", time_struct);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs_t = %lu",
 	    start_date_time_in_secs_t->value->uint32);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "clock_is_timezone_set = %s",
-	    (clock_is_timezone_set() ? "true" : "false"));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time = %s", tmp_date_buf);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time = %s", tmp_date_buffer);
   }
   if (end_date_time_in_secs_t) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs_t = %lu",
 	    end_date_time_in_secs_t->value->uint32);
-    char tmp_date_buf[30];
+    char tmp_date_buffer[30];
     end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
     struct tm *time_struct = localtime(&end_date_time_in_secs);
-    strftime(tmp_date_buf, sizeof(tmp_date_buf),
+    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
 	     DATE "\n%l:%M %p", time_struct);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs_t = %lu",
 	    end_date_time_in_secs_t->value->uint32);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time = %s", tmp_date_buf);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time = %s", tmp_date_buffer);
   }
-    
-}
 
-static void set_selected_timescale() {
-  selected_timescale = get_selected_timescale(timescale_buffer);
+  set_timescale();
+  update_time();
 }
 
 static void main_window_load(Window *window) {
@@ -166,8 +157,8 @@ static void main_window_load(Window *window) {
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   text_layer_set_text(s_time_layer, MM_TITLE "\n00:00:00");
-  text_layer_set_font(s_time_layer, fonts_get_system_font(
-  FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(s_time_layer,
+		      fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   // Create timescale TextLayer
@@ -180,8 +171,8 @@ static void main_window_load(Window *window) {
 #endif
   text_layer_set_background_color(s_timescale_layer, GColorClear);
   text_layer_set_text_color(s_timescale_layer, GColorBlack);
-  text_layer_set_font(s_timescale_layer, fonts_get_system_font(
-  FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_font(s_timescale_layer,
+		      fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
   text_layer_set_text_alignment(s_timescale_layer, GTextAlignmentCenter);
   strncpy(timescale_buffer, LOCAL_TIME, sizeof(timescale_buffer));
 
@@ -196,10 +187,11 @@ static void main_window_load(Window *window) {
   if (persist_read_string(KEY_TIMESCALE, tmp_buffer,
     			  sizeof(tmp_buffer)) > 0) {
     strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
-    set_selected_timescale();
+    selected_timescale = get_timescale_from_string(timescale_buffer);
+    displayed_timescale = selected_timescale;
   }
   if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
-      local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
+    local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
   }
   if (persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME)) {
     shake_wrist_toggles_time = persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME);
@@ -237,20 +229,22 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
     return;
   }
   // return if Local Time or config doesn't allow shaking
-  is_local_time = !is_local_time;
-  if (is_local_time) {
-    displayed_timescale = selected_timescale;
-  // need to actually change timescales here
+  if (displayed_timescale == selected_timescale) {
+    displayed_timescale = alternative_timescale;
   }
+  else {
+    displayed_timescale = selected_timescale;
+  }
+  set_timescale();
 }
   
 static void init() {
   s_main_window = window_create();
  
   window_set_window_handlers(s_main_window, (WindowHandlers) {
-    .load = main_window_load,
-    .unload = main_window_unload
-  });
+      .load = main_window_load,
+	.unload = main_window_unload
+	});
 
   window_stack_push(s_main_window, true);
   
