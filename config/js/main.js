@@ -18,7 +18,7 @@ function submitHandler() {
 
 function loadOptions() {
   var $backgroundColorPicker = $('#backgroundColorPicker');
-  var $timeFormatCheckbox = $('#timeFormatCheckbox');
+  var $timeFormatCheckBox = $('#timeFormatCheckBox');
   var $timescaleSelector = $('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
   var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
@@ -29,11 +29,11 @@ function loadOptions() {
   var $endTime = $('#endTime');
 
   // for development only!
-  // localStorage.clear();
+  //localStorage.clear();
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
-    $timeFormatCheckbox[0].checked =
+    $timeFormatCheckBox[0].checked =
       (localStorage.twentyFourHourFormat === 'true');
     $timescaleSelector[0].value = localStorage.timescaleSelector;
     $localTimeShowSecondsCheckBox[0].checked =
@@ -59,7 +59,7 @@ function getTimeFromDateAndTime(date, time) {
 
 function getAndStoreConfigData() {
   var $backgroundColorPicker = $('#backgroundColorPicker');
-  var $timeFormatCheckbox = $('#timeFormatCheckbox');
+  var $timeFormatCheckBox = $('#timeFormatCheckBox');
   var $timescaleSelector =$('#timescaleSelector');
   var $localTimeShowSecondsCheckBox = $('#localTimeShowSecondsCheckBox');
   var $shakeWristTogglesTimeCheckBox = $('#shakeWristTogglesTimeCheckBox');
@@ -71,7 +71,7 @@ function getAndStoreConfigData() {
 
   var options = {
     backgroundColor: $backgroundColorPicker.val(),
-    twentyFourHourFormat: $timeFormatCheckbox[0].checked,
+    twentyFourHourFormat: $timeFormatCheckBox[0].checked,
     timescaleSelector: $timescaleSelector.val(),
     localTimeShowSecondsCheckBox: $localTimeShowSecondsCheckBox[0].checked,
     shakeWristTogglesTimeCheckBox: $shakeWristTogglesTimeCheckBox[0].checked,
@@ -85,8 +85,8 @@ function getAndStoreConfigData() {
   localStorage.backgroundColor = options.backgroundColor;
   localStorage.twentyFourHourFormat = options.twentyFourHourFormat;
   localStorage.timescaleSelector = options.timescaleSelector;
-  localStorage.localTimeShowSecondsCheckbox =
-    options.localTimeShowSecondsCheckbox;
+  localStorage.localTimeShowSecondsCheckBox =
+    options.localTimeShowSecondsCheckBox;
   localStorage.shakeWristTogglesTimeCheckBox =
     options.shakeWristTogglesTimeCheckBox;
   localStorage.reverseTimeCheckBox =

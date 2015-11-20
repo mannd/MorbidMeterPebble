@@ -85,10 +85,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     int background_color = background_color_t->value->int32;
     persist_write_int(KEY_BACKGROUND_COLOR, background_color);
     set_background_and_text_color(background_color);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "background color = %d", background_color);
   }
   if (twenty_four_hour_format_t) {
     twenty_four_hour_format = twenty_four_hour_format_t->value->int8;
     persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hr format  = %d", twenty_four_hour_format);
   }
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
@@ -109,6 +111,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_int(KEY_REVERSE_TIME, reverse_time);
     // update timescale and reverse time
     // prepend '-' to timescale with reverse time?
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time);
   }
   if (start_date_time_in_secs_t) {
     char tmp_date_buffer[30];
