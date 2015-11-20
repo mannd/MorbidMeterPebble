@@ -29,7 +29,7 @@ function loadOptions() {
   var $endTime = $('#endTime');
 
   // for development only!
-  //localStorage.clear();
+  // localStorage.clear();
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;
@@ -76,10 +76,6 @@ function getAndStoreConfigData() {
     localTimeShowSecondsCheckBox: $localTimeShowSecondsCheckBox[0].checked,
     shakeWristTogglesTimeCheckBox: $shakeWristTogglesTimeCheckBox[0].checked,
     reverseTimeCheckBox: $reverseTimeCheckBox[0].checked,
-    startDate: $startDate.val(),
-    startTime: $startTime.val(),
-    endDate: $endDate.val(),
-    endTime: $endTime.val(),
     startDateTimeInSecs: getTimeFromDateAndTime($startDate.val(),
                                              $startTime.val()),
     endDateTimeInSecs: getTimeFromDateAndTime($endDate.val(),
@@ -95,10 +91,10 @@ function getAndStoreConfigData() {
     options.shakeWristTogglesTimeCheckBox;
   localStorage.reverseTimeCheckBox =
     options.reverseTimeCheckBox;
-  localStorage.startDate = options.startDate;
-  localStorage.startTime = options.startTime;
-  localStorage.endDate = options.endDate;
-  localStorage.endTime = options.endTime;
+  localStorage.startDate = $startDate.val();
+  localStorage.startTime = $startTime.val();
+  localStorage.endDate = $endDate.val();
+  localStorage.endTime = $endTime.val();
 
   console.log('Got options: ' + JSON.stringify(options));
 

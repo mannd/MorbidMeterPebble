@@ -1,5 +1,6 @@
 Pebble.addEventListener('ready', function() {
   console.log('PebbleKit JS ready!');
+
 });
 
 Pebble.addEventListener('showConfiguration', function() {
@@ -22,10 +23,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
       localTimeShowSecondsCheckBox: configData.localTimeShowSecondsCheckBox,
       shakeWristTogglesTimeCheckBox: configData.shakeWristTogglesTimeCheckBox,
       reverseTimeCheckBox: configData.reverseTimeCheckBox,
-      startDate: configData.startDate,
-      startTime: configData.startTime,
-      endDate: configData.endDate,
-      endTime: configData.endTime,
       startDateTimeInSecs: configData.startDateTimeInSecs,
       endDateTimeInSecs: configData.endDateTimeInSecs
 // add rest here

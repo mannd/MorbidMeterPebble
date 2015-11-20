@@ -10,12 +10,8 @@
 #define KEY_LOCAL_TIME_SHOW_SECONDS 3
 #define KEY_SHAKE_WRIST_TOGGLES_TIME 4
 #define KEY_REVERSE_TIME 5
-#define KEY_START_DATE 6
-#define KEY_START_TIME 7
-#define KEY_END_DATE 8
-#define KEY_END_TIME 9
-#define KEY_START_DATE_TIME_IN_SECS 10
-#define KEY_END_DATE_TIME_IN_SECS 11
+#define KEY_START_DATE_TIME_IN_SECS 6
+#define KEY_END_DATE_TIME_IN_SECS 7
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -94,6 +90,9 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   if (twenty_four_hour_format_t) {
     twenty_four_hour_format = twenty_four_hour_format_t->value->int8;
     persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hour format = %s", twenty_four_hour_format ?
+	    "true" : "false");
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hour format int = %d", twenty_four_hour_format);
   }
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
@@ -146,6 +145,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
   set_timescale();
   update_time();
+
 }
 
 static void main_window_load(Window *window) {

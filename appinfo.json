@@ -6,12 +6,8 @@
 	"localTimeShowSecondsCheckBox": 3,
 	"shakeWristTogglesTimeCheckBox": 4,
 	"reverseTimeCheckBox": 5,
-	"startDate": 6,
-	"startTime": 7,
-	"endDate": 8,
-	"endTime": 9,
-	"startDateTimeInSecs": 10,
-	"endDateTimeInSecs": 11
+	"startDateTimeInSecs": 6,
+	"endDateTimeInSecs": 7
     },
     "capabilities": [
         "configurable"
