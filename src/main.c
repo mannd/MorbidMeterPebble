@@ -69,7 +69,6 @@ static void update_time() {
 
 static void set_timescale() {
   text_layer_set_text(s_timescale_layer, get_string_from_timescale(displayed_timescale));
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "displayed ts = %s", get_string_from_timescale(displayed_timescale));
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
@@ -90,17 +89,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   if (twenty_four_hour_format_t) {
     twenty_four_hour_format = twenty_four_hour_format_t->value->int8;
     persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hour format = %s", twenty_four_hour_format ?
-	    "true" : "false");
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hour format int = %d", twenty_four_hour_format);
   }
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
     persist_write_string(KEY_TIMESCALE, timescale_buffer);
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "selected ts = %d", selected_timescale);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "displayed ts = %d", displayed_timescale);
   }
   if (local_time_show_seconds_t) {
     local_time_show_seconds = local_time_show_seconds_t->value->int8;
@@ -117,30 +111,20 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     // prepend '-' to timescale with reverse time?
   }
   if (start_date_time_in_secs_t) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs_t = %lu",
-	    start_date_time_in_secs_t->value->uint32);
     char tmp_date_buffer[30];
     start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
     struct tm *time_struct = localtime(&start_date_time_in_secs);
     strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
 	     DATE "\n%l:%M %p", time_struct);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs_t = %lu",
-	    start_date_time_in_secs_t->value->uint32);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time = %s", tmp_date_buffer);
   }
   if (end_date_time_in_secs_t) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs_t = %lu",
-	    end_date_time_in_secs_t->value->uint32);
     char tmp_date_buffer[30];
     end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
     struct tm *time_struct = localtime(&end_date_time_in_secs);
     strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
 	     DATE "\n%l:%M %p", time_struct);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs_t = %lu",
-	    end_date_time_in_secs_t->value->uint32);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time = %s", tmp_date_buffer);
   }
 
   set_timescale();
