@@ -18,11 +18,11 @@ Pebble.addEventListener('webviewclosed', function(e) {
   if (configData.backgroundColor) {
       Pebble.sendAppMessage({
       backgroundColor: parseInt(configData.backgroundColor, 16),
-      twentyFourHourFormat: configData.twentyFourHourFormat,
+      twentyFourHourFormat: configData.twentyFourHourFormat ? 1 : 0,
       timescaleSelector: configData.timescaleSelector,
-      localTimeShowSecondsCheckBox: configData.localTimeShowSecondsCheckBox,
-      shakeWristTogglesTimeCheckBox: configData.shakeWristTogglesTimeCheckBox,
-      reverseTimeCheckBox: configData.reverseTimeCheckBox,
+      localTimeShowSecondsCheckBox: configData.localTimeShowSecondsCheckBox ? 1 : 0,
+      shakeWristTogglesTimeCheckBox: configData.shakeWristTogglesTimeCheckBox ? 1 : 0,
+      reverseTimeCheckBox: configData.reverseTimeCheckBox ? 1 : 0,
       startDateTimeInSecs: configData.startDateTimeInSecs,
       endDateTimeInSecs: configData.endDateTimeInSecs
     }, function() {
