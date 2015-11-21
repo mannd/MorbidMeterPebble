@@ -61,7 +61,21 @@ static void update_time() {
 		 MM_TITLE DATE "\n%l:%M %p", tick_time);
       }
     }
-  } else {
+  }
+  else if (displayed_timescale == TS_SECONDS) {
+    time_t real_time = time(NULL);
+    localtime(&real_time);
+    time_t diff;
+    if (!reverse_time) {
+      diff = real_time - start_date_time_in_secs;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nsecs", (int)diff);
+    }
+    else {
+      diff = end_date_time_in_secs - real_time;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nsecs left", (int)diff);
+    }
+  }
+  else {
     strcpy(time_buffer, "MorbidMeter\nTime\nSoon!");
   }
   text_layer_set_text(s_time_layer, time_buffer);
