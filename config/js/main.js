@@ -28,8 +28,8 @@ function loadOptions() {
   var $endDate = $('#endDate');
   var $endTime = $('#endTime');
 
-  // for development only!
-  //localStorage.clear();
+  // for development 
+  // localStorage.clear();
 
   if (localStorage.backgroundColor) {
     $backgroundColorPicker[0].value = localStorage.backgroundColor;

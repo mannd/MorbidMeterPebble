@@ -16,7 +16,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
   console.log('Configuration page returned: ' + JSON.stringify(configData));
 
   if (configData.backgroundColor) {
-    Pebble.sendAppMessage({
+      Pebble.sendAppMessage({
       backgroundColor: parseInt(configData.backgroundColor, 16),
       twentyFourHourFormat: configData.twentyFourHourFormat,
       timescaleSelector: configData.timescaleSelector,
@@ -25,7 +25,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
       reverseTimeCheckBox: configData.reverseTimeCheckBox,
       startDateTimeInSecs: configData.startDateTimeInSecs,
       endDateTimeInSecs: configData.endDateTimeInSecs
-// add rest here
     }, function() {
       console.log('Send successful!');
     }, function() {

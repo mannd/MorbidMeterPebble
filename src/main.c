@@ -17,7 +17,7 @@ static Window *s_main_window;
 static TextLayer *s_time_layer;
 static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
-static bool shake_wrist_toggles_time;
+static bool shake_wrist_toggles_time = true;
 static bool reverse_time = false;
 static time_t start_date_time_in_secs = 0;
 static time_t end_date_time_in_secs = 0;
@@ -88,8 +88,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "background color = %d", background_color);
   }
   if (twenty_four_hour_format_t) {
-    twenty_four_hour_format = twenty_four_hour_format_t->value->int8;
-    persist_write_int(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
+    twenty_four_hour_format = (bool) twenty_four_hour_format_t->value->int8;
+    persist_write_bool(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hr format  = %d", twenty_four_hour_format);
   }
   if (timescale_t) {
@@ -99,16 +99,16 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     displayed_timescale = selected_timescale;
   }
   if (local_time_show_seconds_t) {
-    local_time_show_seconds = local_time_show_seconds_t->value->int8;
-    persist_write_int(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
+    local_time_show_seconds = (bool) local_time_show_seconds_t->value->int8;
+    persist_write_bool(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
   }
   if (shake_wrist_toggles_time_t) {
-    shake_wrist_toggles_time = shake_wrist_toggles_time_t->value->int8;
-    persist_write_int(KEY_SHAKE_WRIST_TOGGLES_TIME, shake_wrist_toggles_time);
+    shake_wrist_toggles_time = (bool) shake_wrist_toggles_time_t->value->int8;
+    persist_write_bool(KEY_SHAKE_WRIST_TOGGLES_TIME, shake_wrist_toggles_time);
   }
   if (reverse_time_t) {
-    reverse_time = reverse_time_t->value->int8;
-    persist_write_int(KEY_REVERSE_TIME, reverse_time);
+    reverse_time = (bool) reverse_time_t->value->int8;
+    persist_write_bool(KEY_REVERSE_TIME, reverse_time);
     // update timescale and reverse time
     // prepend '-' to timescale with reverse time?
     APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time);
