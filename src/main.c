@@ -62,6 +62,22 @@ static void update_time() {
       }
     }
   }
+  else if (displayed_timescale == TS_PERCENT) {
+    time_t real_time = time(NULL);
+    localtime(&real_time);
+    if (!reverse_time) {
+      double percent_time = (double) (real_time - start_date_time_in_secs) /
+	(end_date_time_in_secs - start_date_time_in_secs) * 100;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%% done", (int)percent_time,
+	       (int)(percent_time / 1000) % 1000);
+    }
+    else {
+     double percent_time = (double) (end_date_time_in_secs - real_time) /
+	(end_date_time_in_secs - start_date_time_in_secs) * 100;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%% left", (int)percent_time,
+	       (int)(percent_time / 1000) % 1000);
+    }
+  }
   else if (displayed_timescale == TS_SECONDS) {
     time_t real_time = time(NULL);
     localtime(&real_time);
@@ -75,6 +91,46 @@ static void update_time() {
       snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nsecs left", (int)diff);
     }
   }
+  else if (displayed_timescale == TS_MINUTES) {
+    time_t real_time = time(NULL);
+    localtime(&real_time);
+    time_t diff;
+    if (!reverse_time) {
+      diff = real_time - start_date_time_in_secs;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nmins", (int)diff / 60);
+    }
+    else {
+      diff = end_date_time_in_secs - real_time;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nmins left", (int)diff / 60);
+    }
+  }
+  else if (displayed_timescale == TS_HOURS) {
+    time_t real_time = time(NULL);
+    localtime(&real_time);
+    time_t diff;
+    if (!reverse_time) {
+      diff = real_time - start_date_time_in_secs;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nhours", (int)diff / 360);
+    }
+    else {
+      diff = end_date_time_in_secs - real_time;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nhours left", (int)diff / 360);
+    }
+  }
+  else if (displayed_timescale == TS_DAYS) {
+    time_t real_time = time(NULL);
+    localtime(&real_time);
+    time_t diff;
+    if (!reverse_time) {
+      diff = real_time - start_date_time_in_secs;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \ndays", (int)diff / (360 * 24));
+    }
+    else {
+      diff = end_date_time_in_secs - real_time;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \ndays left", (int)diff / (360 * 24));
+    }
+  }
+  /* More and more and more timescales!! */
   else {
     strcpy(time_buffer, "MorbidMeter\nTime\nSoon!");
   }
