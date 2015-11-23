@@ -39,10 +39,19 @@ static void set_background_and_text_color(int color) {
 #endif
 }
 
+static int get_decimal_portion_of_double(double d) {
+  return (int)((d < 0 ? -d : d) / 1000) % 1000;
+}
+
 static void update_time() {
+  time_t real_time = time(NULL);
+  struct tm *tick_time = localtime(&real_time);
+  // first handle countdown done
+  /* if (displayed_timescale != TS_LOCAL_TIME && real_time >= end_date_time_in_secs) { */
+  /*   snprintf(time_buffer, sizeof(time_buffer), "FINISHED!"); */
+  /*   return; */
+  /* } */
   if (displayed_timescale == TS_LOCAL_TIME) {
-    time_t temp = time(NULL); 
-    struct tm *tick_time = localtime(&temp);
     // Write the current hours and minutes into the buffer
     if (twenty_four_hour_format) {
       if (local_time_show_seconds) {
@@ -63,24 +72,20 @@ static void update_time() {
     }
   }
   else if (displayed_timescale == TS_PERCENT) {
-    time_t real_time = time(NULL);
-    localtime(&real_time);
     if (!reverse_time) {
       double percent_time = (double) (real_time - start_date_time_in_secs) /
 	(end_date_time_in_secs - start_date_time_in_secs) * 100;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%% done", (int)percent_time,
-	       (int)(percent_time / 1000) % 1000);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\ndone", (int)percent_time,
+	       get_decimal_portion_of_double(percent_time));
     }
     else {
      double percent_time = (double) (end_date_time_in_secs - real_time) /
 	(end_date_time_in_secs - start_date_time_in_secs) * 100;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%% left", (int)percent_time,
-	       (int)(percent_time / 1000) % 1000);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nleft", (int)percent_time,
+	       get_decimal_portion_of_double(percent_time));
     }
   }
   else if (displayed_timescale == TS_SECONDS) {
-    time_t real_time = time(NULL);
-    localtime(&real_time);
     time_t diff;
     if (!reverse_time) {
       diff = real_time - start_date_time_in_secs;
@@ -92,8 +97,6 @@ static void update_time() {
     }
   }
   else if (displayed_timescale == TS_MINUTES) {
-    time_t real_time = time(NULL);
-    localtime(&real_time);
     time_t diff;
     if (!reverse_time) {
       diff = real_time - start_date_time_in_secs;
@@ -105,8 +108,6 @@ static void update_time() {
     }
   }
   else if (displayed_timescale == TS_HOURS) {
-    time_t real_time = time(NULL);
-    localtime(&real_time);
     time_t diff;
     if (!reverse_time) {
       diff = real_time - start_date_time_in_secs;
@@ -118,8 +119,6 @@ static void update_time() {
     }
   }
   else if (displayed_timescale == TS_DAYS) {
-    time_t real_time = time(NULL);
-    localtime(&real_time);
     time_t diff;
     if (!reverse_time) {
       diff = real_time - start_date_time_in_secs;
