@@ -129,6 +129,18 @@ static void update_time() {
       snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \ndays left", (int)diff / (360 * 24));
     }
   }
+  /// TODO Add decimal component to end of days, hours, years
+  else if (displayed_timescale == TS_YEARS) {
+    time_t diff;
+    if (!reverse_time) {
+      diff = real_time - start_date_time_in_secs;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nyears", (int)diff / (360 * 24) * 365);
+    }
+    else {
+      diff = end_date_time_in_secs - real_time;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nyearsleft", (int)diff / (360 * 24) * 365);
+    }
+  }
   /* More and more and more timescales!! */
   else {
     strcpy(time_buffer, "MorbidMeter\nTime\nSoon!");
@@ -180,24 +192,24 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_bool(KEY_REVERSE_TIME, reverse_time);
     // update timescale and reverse time
     // prepend '-' to timescale with reverse time?
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time);
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time); */
   }
   if (start_date_time_in_secs_t) {
-    char tmp_date_buffer[30];
     start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
-    struct tm *time_struct = localtime(&start_date_time_in_secs);
-    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
-	     DATE "\n%l:%M %p", time_struct);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start date time = %s", tmp_date_buffer);
+    /* struct tm *time_struct = localtime(&start_date_time_in_secs); */
+    /* char tmp_date_buffer[30]; */
+    /* strftime(tmp_date_buffer, sizeof(tmp_date_buffer), */
+    /* 	     DATE "\n%l:%M %p", time_struct); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start date time = %s", tmp_date_buffer); */
   }
   if (end_date_time_in_secs_t) {
-    char tmp_date_buffer[30];
     end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
-    struct tm *time_struct = localtime(&end_date_time_in_secs);
-    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
-	     DATE "\n%l:%M %p", time_struct);
+    /* struct tm *time_struct = localtime(&end_date_time_in_secs); */
+    /* char tmp_date_buffer[30]; */
+    /* strftime(tmp_date_buffer, sizeof(tmp_date_buffer), */
+    /* 	     DATE "\n%l:%M %p", time_struct); */
   }
 
   set_timescale();
