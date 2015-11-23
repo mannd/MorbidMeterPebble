@@ -52,7 +52,10 @@ function loadOptions() {
 function getTimeFromDateAndTime(date, time) {
   var dateParts = date.split('-');
   var timeParts = time.split(':');
-  var d =  new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], 0);
+  var today = new Date();
+  var timezoneOffset = today.getTimezoneOffset();
+  var d =  new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0],
+                    timeParts[1] - timezoneOffset, 0);
   return d.getTime() / 1000;   // Pebble uses secs not msec for time
 }
 

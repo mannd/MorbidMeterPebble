@@ -189,6 +189,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     struct tm *time_struct = localtime(&start_date_time_in_secs);
     strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
 	     DATE "\n%l:%M %p", time_struct);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start date time = %s", tmp_date_buffer);
   }
   if (end_date_time_in_secs_t) {
     char tmp_date_buffer[30];
