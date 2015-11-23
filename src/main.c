@@ -12,6 +12,10 @@
 #define KEY_REVERSE_TIME 5
 #define KEY_START_DATE_TIME_IN_SECS 6
 #define KEY_END_DATE_TIME_IN_SECS 7
+
+#define SECS_IN_HOUR (60 * 60)
+#define SECS_IN_DAY (24 * SECS_IN_HOUR)
+#define SECS_IN_YEAR (365.25 * SECS_IN_DAY)
     
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -40,17 +44,16 @@ static void set_background_and_text_color(int color) {
 }
 
 static int get_decimal_portion_of_double(double d) {
-  return (int)((d < 0 ? -d : d) / 1000) % 1000;
+  return (int)((d < 0 ? -d : d) * 1000) % 1000;
 }
 
 static void update_time() {
   time_t real_time = time(NULL);
   struct tm *tick_time = localtime(&real_time);
-  // first handle countdown done
-  /* if (displayed_timescale != TS_LOCAL_TIME && real_time >= end_date_time_in_secs) { */
-  /*   snprintf(time_buffer, sizeof(time_buffer), "FINISHED!"); */
-  /*   return; */
-  /* } */
+  time_t diff = real_time - start_date_time_in_secs;
+  time_t reverse_diff = end_date_time_in_secs - real_time;
+  // handle bad situations here
+  
   if (displayed_timescale == TS_LOCAL_TIME) {
     // Write the current hours and minutes into the buffer
     if (twenty_four_hour_format) {
@@ -73,72 +76,68 @@ static void update_time() {
   }
   else if (displayed_timescale == TS_PERCENT) {
     if (!reverse_time) {
-      double percent_time = (double) (real_time - start_date_time_in_secs) /
-	(end_date_time_in_secs - start_date_time_in_secs) * 100;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\ndone", (int)percent_time,
+      double percent_time = 100.0 * (double)diff /
+	(end_date_time_in_secs - start_date_time_in_secs);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nDone", (int)percent_time,
 	       get_decimal_portion_of_double(percent_time));
     }
     else {
-     double percent_time = (double) (end_date_time_in_secs - real_time) /
-	(end_date_time_in_secs - start_date_time_in_secs) * 100;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nleft", (int)percent_time,
+      double percent_time = (double) 100.0 * (double)reverse_diff /
+	(end_date_time_in_secs - start_date_time_in_secs);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nLeft", (int)percent_time,
 	       get_decimal_portion_of_double(percent_time));
     }
   }
   else if (displayed_timescale == TS_SECONDS) {
-    time_t diff;
     if (!reverse_time) {
-      diff = real_time - start_date_time_in_secs;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nsecs", (int)diff);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nSecs", (int)diff);
     }
     else {
-      diff = end_date_time_in_secs - real_time;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nsecs left", (int)diff);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nSecs Left", (int)reverse_diff);
     }
   }
   else if (displayed_timescale == TS_MINUTES) {
-    time_t diff;
     if (!reverse_time) {
-      diff = real_time - start_date_time_in_secs;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nmins", (int)diff / 60);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nMins", (int)diff / 60);
     }
     else {
-      diff = end_date_time_in_secs - real_time;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nmins left", (int)diff / 60);
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nMins Left", (int)reverse_diff / 60);
     }
   }
   else if (displayed_timescale == TS_HOURS) {
-    time_t diff;
     if (!reverse_time) {
-      diff = real_time - start_date_time_in_secs;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nhours", (int)diff / 360);
+      double hours = diff / SECS_IN_HOUR;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nHours", (int)hours,
+	       get_decimal_portion_of_double(hours));
     }
     else {
-      diff = end_date_time_in_secs - real_time;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nhours left", (int)diff / 360);
+      double hours = reverse_diff / SECS_IN_HOUR;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nHours Left", (int)hours,
+	       get_decimal_portion_of_double(hours));
     }
   }
   else if (displayed_timescale == TS_DAYS) {
-    time_t diff;
     if (!reverse_time) {
-      diff = real_time - start_date_time_in_secs;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \ndays", (int)diff / (360 * 24));
+      double days = diff / SECS_IN_DAY;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nDays", (int)days,
+	       get_decimal_portion_of_double(days));
     }
     else {
-      diff = end_date_time_in_secs - real_time;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \ndays left", (int)diff / (360 * 24));
+      double days = reverse_diff / SECS_IN_DAY;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nDays Left", (int)days,
+	       get_decimal_portion_of_double(days));
     }
   }
-  /// TODO Add decimal component to end of days, hours, years
   else if (displayed_timescale == TS_YEARS) {
-    time_t diff;
     if (!reverse_time) {
-      diff = real_time - start_date_time_in_secs;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nyears", (int)diff / (360 * 24) * 365);
+      double years = diff / SECS_IN_YEAR;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%0d \nYears", (int)years,
+	       get_decimal_portion_of_double(years));
     }
     else {
-      diff = end_date_time_in_secs - real_time;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nyearsleft", (int)diff / (360 * 24) * 365);
+      double years = reverse_diff / SECS_IN_YEAR;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%0d \nYears Left", (int)years,
+	       get_decimal_portion_of_double(years));
     }
   }
   /* More and more and more timescales!! */
@@ -197,19 +196,25 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   if (start_date_time_in_secs_t) {
     start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
-    /* struct tm *time_struct = localtime(&start_date_time_in_secs); */
-    /* char tmp_date_buffer[30]; */
-    /* strftime(tmp_date_buffer, sizeof(tmp_date_buffer), */
-    /* 	     DATE "\n%l:%M %p", time_struct); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start date time = %s", tmp_date_buffer); */
+    struct tm *time_struct = localtime(&start_date_time_in_secs);
+    char tmp_date_buffer[30];
+    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
+    	     DATE "\n%l:%M %p", time_struct);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start date time = %s", tmp_date_buffer);
   }
   if (end_date_time_in_secs_t) {
     end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
-    /* struct tm *time_struct = localtime(&end_date_time_in_secs); */
-    /* char tmp_date_buffer[30]; */
-    /* strftime(tmp_date_buffer, sizeof(tmp_date_buffer), */
-    /* 	     DATE "\n%l:%M %p", time_struct); */
+    struct tm *time_struct = localtime(&end_date_time_in_secs);
+    char tmp_date_buffer[30];
+    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
+    	     DATE "\n%l:%M %p", time_struct);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end date time = %s", tmp_date_buffer);
+    time_t real_time = time(NULL);
+    time_t diff = real_time - start_date_time_in_secs;
+    time_t reverse_diff = end_date_time_in_secs - real_time;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "real_time = %d, diff = %d, reverse_diff = %d",
+	    (int)real_time, (int)diff, (int)reverse_diff);
   }
 
   set_timescale();
