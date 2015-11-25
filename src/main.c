@@ -256,14 +256,41 @@ static void update_time() {
     */
     int universe_years = (int) (fraction_alive * 15000000);
     strcat(format_str, reverse_time ? "-" : "");
-    strcat(format_str, "%ld Millenia");
+    strcat(format_str, "%d Millenia");
     snprintf(time_buffer, sizeof(time_buffer), format_str, universe_years);
+  }
+  else if (displayed_timescale == TS_X_UNIVERSE) {
+    double fraction_alive = (double)time_duration / total_time;
+    // one year goes from 4000 BC to 2001 AD
+    struct tm start = {0};
+    // struct tm counts years from 1900
+    start.tm_year = -5900;
+    start.tm_mon = 0;
+    start.tm_mday = 1;
+    struct tm end = {0};
+    end.tm_year = 101;
+    end.tm_mon = 0;
+    end.tm_mday = 1;
+    time_t start_in_secs = mktime(&start);
+    time_t end_in_secs = mktime(&end);
+    time_t mm_time = start_in_secs +
+      (time_t) (fraction_alive * (end_in_secs - start_in_secs));
+    struct tm *mm_time_struct = gmtime(&mm_time);
+    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%b %e %Y\n%l:%M:%S %p ");
+    strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
+  }
+  else if (displayed_timescale == TS_X_UNIVERSE_2) {
+    double fraction_alive = (double)time_duration / total_time;
+    double universe_years = fraction_alive * 6000;
+    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%d.%03d Yrs");
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
+	     get_decimal_portion_of_double(universe_years));
   }
       
   /* More and more and more timescales!! */
-  /* TS_X_UNIVERSE, */
-  /* TS_X_UNIVERSE_2, */
-  /* TS_ALT_TZ */
+  /* TS_ALT_TZ -- maybe next edition or not at all */
 
   else { 			/* TS_NONE, TS_DEBUG, TS_ERROR */
     strcpy(time_buffer, "MorbidMeter\nSomething Ain't Right!?");
