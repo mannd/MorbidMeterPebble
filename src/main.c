@@ -249,19 +249,24 @@ static void update_time() {
     strcat(format_str, "%b %e\n%l:%M:%S %p ");
     strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
   }
+  else if (displayed_timescale == TS_UNIVERSE) {
+    double fraction_alive = (double)time_duration / total_time;
+    /* Note Pebble only has 32 bit ints, so it can't handle
+       15 billion years, so will use 15 million millenia instead
+    */
+    int universe_years = (int) (fraction_alive * 15000000);
+    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%ld Millenia");
+    snprintf(time_buffer, sizeof(time_buffer), format_str, universe_years);
+  }
       
   /* More and more and more timescales!! */
-  /* TS_UNIVERSE, */
   /* TS_X_UNIVERSE, */
   /* TS_X_UNIVERSE_2, */
-  /* TS_PERCENT, */
-  /* TS_ALT_TZ, */
-  /* TS_NONE, */
-  /* TS_DEBUG, */
-  /* TS_ERROR */
+  /* TS_ALT_TZ */
 
-  else {
-    strcpy(time_buffer, "MorbidMeter\nTime\nSoon!");
+  else { 			/* TS_NONE, TS_DEBUG, TS_ERROR */
+    strcpy(time_buffer, "MorbidMeter\nSomething Ain't Right!?");
   }
   text_layer_set_text(s_time_layer, time_buffer);
 }
