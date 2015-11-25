@@ -25,6 +25,7 @@ static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 static bool shake_wrist_toggles_time = true;
 static bool reverse_time = false;
+static bool timer_expired = false;
 static bool local_time_show_seconds = true;
 static time_t start_date_time_in_secs = 0;
 static time_t end_date_time_in_secs = 0;
@@ -71,6 +72,10 @@ static void update_time() {
     else if (reverse_diff < 0) {
       snprintf(time_buffer, sizeof(time_buffer),
   	       MM_TITLE TOO_LATE_MESSAGE);
+      if (!timer_expired) {
+	vibes_short_pulse();
+	timer_expired = true;
+      }
       return;
     }
   }
@@ -304,7 +309,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "real_time = %d, diff = %d, reverse_diff = %d",
 	    (int)real_time, (int)diff, (int)reverse_diff);
   }
-
+  // config resets timer buzz
+  timer_expired = false;
   set_timescale();
   update_time();
 

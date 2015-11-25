@@ -19,6 +19,7 @@
 #define X_UNIVERSE "X Universe"
 #define X_UNIVERSE_2 "X Universe 2"
 #define PERCENT "Percent"
+#define ALT_TZ "Alt Timezone"
 #define NONE "None"
 #define DEBUG "Debug"
 
@@ -38,6 +39,7 @@ typedef enum {
   TS_X_UNIVERSE,
   TS_X_UNIVERSE_2,
   TS_PERCENT,
+  TS_ALT_TZ,
   TS_NONE,
   TS_DEBUG,
   TS_ERROR
