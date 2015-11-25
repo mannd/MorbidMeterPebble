@@ -3,6 +3,8 @@
 
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
+#define COMPLETE "Complete"
+#define LEFT "Left"
 #define TOO_SOON_MESSAGE "\nToo Soon!"
 #define TOO_LATE_MESSAGE "\nTimer Complete!"
 #define NEGATIVE_TIME_DURATION_MESSAGE "\nEnd Sooner Than Start!"
@@ -55,11 +57,10 @@ static void update_time() {
   struct tm *tick_time = localtime(&real_time);
   time_t diff = real_time - start_date_time_in_secs;
   time_t reverse_diff = end_date_time_in_secs - real_time;
-  time_t time_duration = end_date_time_in_secs - start_date_time_in_secs;
-  // handle bad situations here
-  /// TODO this gets everything stuck 
+  time_t total_time = end_date_time_in_secs - start_date_time_in_secs;
+  // handle bad or time-out situations here
   if (displayed_timescale != TS_LOCAL_TIME) {
-    if (time_duration <= 0) {
+    if (total_time <= 0) {
       snprintf(time_buffer, sizeof(time_buffer),
   	       MM_TITLE NEGATIVE_TIME_DURATION_MESSAGE);
       return;
@@ -79,6 +80,7 @@ static void update_time() {
       return;
     }
   }
+
   if (displayed_timescale == TS_LOCAL_TIME) {
     // Write the current hours and minutes into the buffer
     if (twenty_four_hour_format) {
@@ -98,129 +100,91 @@ static void update_time() {
 		 MM_TITLE DATE "\n%l:%M %p", tick_time);
       }
     }
+    return;
   }
-  else if (displayed_timescale == TS_PERCENT) {
-    if (!reverse_time) {
-      double percent_time = 100.0 * (double)diff / time_duration;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nDone", (int)percent_time,
-	       get_decimal_portion_of_double(percent_time));
-    }
-    else {
-      double percent_time = (double) 100.0 * (double)reverse_diff / time_duration;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nLeft", (int)percent_time,
-	       get_decimal_portion_of_double(percent_time));
-    }
+
+  char format_str[40];
+  // Title alwasy on top line
+  // rest of message formatted by Pebble
+  strcpy(format_str, MM_TITLE "\n");
+  char suffix[9]; 
+  time_t time_duration;
+  if (!reverse_time) {
+    time_duration = diff;
+    strcpy(suffix, COMPLETE);
+  }
+  else {
+    time_duration = reverse_diff;
+    strcpy(suffix, LEFT);
+  }
+
+  if (displayed_timescale == TS_PERCENT) {
+      double percent_time = 100.0 * (double)time_duration / total_time;
+      strcat(format_str, "%d.%03d%% ");
+      strcat(format_str, suffix);
+      snprintf(time_buffer, sizeof(time_buffer), format_str,
+	       (int)percent_time, get_decimal_portion_of_double(percent_time));
   }
   else if (displayed_timescale == TS_SECONDS) {
-    if (!reverse_time) {
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nSecs", (int)diff);
-    }
-    else {
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nSecs Left", (int)reverse_diff);
-    }
+    strcat(format_str, "%d Secs ");
+    strcat(format_str, suffix);
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)time_duration);
   }
   else if (displayed_timescale == TS_MINUTES) {
-    if (!reverse_time) {
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nMins", (int)diff / 60);
-    }
-    else {
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d \nMins Left", (int)reverse_diff / 60);
-    }
+    strcat(format_str, "%d Mins ");
+    strcat(format_str, suffix);
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)time_duration / 60);
   }
   else if (displayed_timescale == TS_HOURS) {
-    if (!reverse_time) {
-      double hours = diff / SECS_IN_HOUR;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nHours", (int)hours,
+    double hours = time_duration / SECS_IN_HOUR;
+    strcat(format_str, "%d.%03d Hours ");
+    strcat(format_str, suffix);
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)hours,
 	       get_decimal_portion_of_double(hours));
-    }
-    else {
-      double hours = reverse_diff / SECS_IN_HOUR;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nHours Left", (int)hours,
-	       get_decimal_portion_of_double(hours));
-    }
   }
   else if (displayed_timescale == TS_DAYS) {
-    if (!reverse_time) {
-      double days = diff / SECS_IN_DAY;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nDays", (int)days,
+    double days = time_duration / SECS_IN_DAY;
+    strcat(format_str, "%d.%03d \nDays ");
+    strcat(format_str, suffix);
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)days,
 	       get_decimal_portion_of_double(days));
-    }
-    else {
-      double days = reverse_diff / SECS_IN_DAY;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d \nDays Left", (int)days,
-	       get_decimal_portion_of_double(days));
-    }
   }
   else if (displayed_timescale == TS_YEARS) {
-    if (!reverse_time) {
-      double years = diff / SECS_IN_YEAR;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%0d \nYears", (int)years,
+    double years = time_duration / SECS_IN_YEAR;
+    strcat(format_str, "%d.%0d \nYears ");
+    strcat(format_str, suffix);
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)years,
 	       get_decimal_portion_of_double(years));
-    }
-    else {
-      double years = reverse_diff / SECS_IN_YEAR;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%0d \nYears Left", (int)years,
-	       get_decimal_portion_of_double(years));
-    }
   }
   else if (displayed_timescale == TS_DAYS_HOURS_MINS_SECS) {
-    if (!reverse_time) {
-      int secs = (int) diff;
-      int mins = secs / 60;
-      int hours = mins /60;
-      int days = hours / 24;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%dd %dh \n%dm %ds Done",
+    int secs = (int) time_duration;
+    int mins = secs / 60;
+    int hours = mins /60;
+    int days = hours / 24;
+    strcat(format_str, "%dd %dh \n%dm %ds ");
+    strcat(format_str, suffix);
+    snprintf(time_buffer, sizeof(time_buffer), format_str,
 	       days, hours % 24, mins % 60, secs % 60);
-    }
-    else {
-      int secs = (int) reverse_diff;
-      int mins = secs / 60;
-      int hours = mins /60;
-      int days = hours / 24;
-      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%dd %dh \n%dm %ds Left",
-	       days, hours % 24 , mins % 60 , secs % 60);
-    }
   }
   else if (displayed_timescale == TS_DAY) {
-    if (!reverse_time) {
-      double fraction_alive = (double)diff / time_duration;
-      // one day goes from 2000-01-01 to 2000-01-02
-      struct tm start = {0};
-      start.tm_year = 100;
-      start.tm_mon = 0;
-      start.tm_mday = 1;
-      struct tm end = {0};
-      end.tm_year = 100;
-      end.tm_mon = 0;
-      end.tm_mday = 2;
-      time_t start_in_secs = mktime(&start);
-      time_t end_in_secs = mktime(&end);
-      time_t mm_time = (time_t) (fraction_alive * (end_in_secs - start_in_secs));
-      struct tm *mm_time_struct = gmtime(&mm_time);
-      strftime(time_buffer, sizeof(time_buffer),
-	      "\n"  MM_TITLE "\n%l:%M:%S %p", mm_time_struct);
-    }
-    else {
-      double fraction_alive = (double)reverse_diff / time_duration;
-      // one day goes from 2000-01-01 to 2000-01-02
-      struct tm start = {0};
-      start.tm_year = 100;
-      start.tm_mon = 0;
-      start.tm_mday = 1;
-      struct tm end = {0};
-      end.tm_year = 100;
-      end.tm_mon = 0;
-      end.tm_mday = 2;
-      time_t start_in_secs = mktime(&start);
-      time_t end_in_secs = mktime(&end);
-      time_t mm_time = (time_t) (fraction_alive * (end_in_secs - start_in_secs));
-      struct tm *mm_time_struct = gmtime(&mm_time);
-      strftime(time_buffer, sizeof(time_buffer),
-	       "\n" MM_TITLE "\n-%l:%M:%S %p", mm_time_struct);
-    }
-
+    double fraction_alive = (double)time_duration / total_time;
+    // one day goes from 2000-01-01 to 2000-01-02
+    struct tm start = {0};
+    start.tm_year = 100;
+    start.tm_mon = 0;
+    start.tm_mday = 1;
+    struct tm end = {0};
+    end.tm_year = 100;
+    end.tm_mon = 0;
+    end.tm_mday = 2;
+    time_t start_in_secs = mktime(&start);
+    time_t end_in_secs = mktime(&end);
+    time_t mm_time = (time_t) (fraction_alive * (total_time));
+    struct tm *mm_time_struct = gmtime(&mm_time);
+    strcat(format_str, "\n%l:%M:%S %p ");
+    strcat(format_str, suffix);
+    strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
   }
-      
       
   /* More and more and more timescales!! */
   /* TS_HOUR, */
@@ -230,6 +194,7 @@ static void update_time() {
   /* TS_X_UNIVERSE, */
   /* TS_X_UNIVERSE_2, */
   /* TS_PERCENT, */
+  /* TS_ALT_TZ, */
   /* TS_NONE, */
   /* TS_DEBUG, */
   /* TS_ERROR */
