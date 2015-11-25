@@ -176,7 +176,59 @@ static void update_time() {
 	       days, hours % 24 , mins % 60 , secs % 60);
     }
   }
+  else if (displayed_timescale == TS_DAY) {
+    if (!reverse_time) {
+      double fraction_alive = (double)diff / time_duration;
+      // one day goes from 2000-01-01 to 2000-01-02
+      struct tm start = {0};
+      start.tm_year = 100;
+      start.tm_mon = 0;
+      start.tm_mday = 1;
+      struct tm end = {0};
+      end.tm_year = 100;
+      end.tm_mon = 0;
+      end.tm_mday = 2;
+      time_t start_in_secs = mktime(&start);
+      time_t end_in_secs = mktime(&end);
+      time_t mm_time = (time_t) (fraction_alive * (end_in_secs - start_in_secs));
+      struct tm *mm_time_struct = gmtime(&mm_time);
+      strftime(time_buffer, sizeof(time_buffer),
+	      "\n"  MM_TITLE "\n%l:%M:%S %p", mm_time_struct);
+    }
+    else {
+      double fraction_alive = (double)reverse_diff / time_duration;
+      // one day goes from 2000-01-01 to 2000-01-02
+      struct tm start = {0};
+      start.tm_year = 100;
+      start.tm_mon = 0;
+      start.tm_mday = 1;
+      struct tm end = {0};
+      end.tm_year = 100;
+      end.tm_mon = 0;
+      end.tm_mday = 2;
+      time_t start_in_secs = mktime(&start);
+      time_t end_in_secs = mktime(&end);
+      time_t mm_time = (time_t) (fraction_alive * (end_in_secs - start_in_secs));
+      struct tm *mm_time_struct = gmtime(&mm_time);
+      strftime(time_buffer, sizeof(time_buffer),
+	       "\n" MM_TITLE "\n-%l:%M:%S %p", mm_time_struct);
+    }
+
+  }
+      
+      
   /* More and more and more timescales!! */
+  /* TS_HOUR, */
+  /* TS_MONTH, */
+  /* TS_YEAR, */
+  /* TS_UNIVERSE, */
+  /* TS_X_UNIVERSE, */
+  /* TS_X_UNIVERSE_2, */
+  /* TS_PERCENT, */
+  /* TS_NONE, */
+  /* TS_DEBUG, */
+  /* TS_ERROR */
+
   else {
     strcpy(time_buffer, "MorbidMeter\nTime\nSoon!");
   }
