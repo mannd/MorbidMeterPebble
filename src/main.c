@@ -74,7 +74,6 @@ static void update_time() {
       return;
     }
   }
-    
   if (displayed_timescale == TS_LOCAL_TIME) {
     // Write the current hours and minutes into the buffer
     if (twenty_four_hour_format) {
@@ -157,6 +156,24 @@ static void update_time() {
       double years = reverse_diff / SECS_IN_YEAR;
       snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%0d \nYears Left", (int)years,
 	       get_decimal_portion_of_double(years));
+    }
+  }
+  else if (displayed_timescale == TS_DAYS_HOURS_MINS_SECS) {
+    if (!reverse_time) {
+      int secs = (int) diff;
+      int mins = secs / 60;
+      int hours = mins /60;
+      int days = hours / 24;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%dd %dh \n%dm %ds Done",
+	       days, hours % 24, mins % 60, secs % 60);
+    }
+    else {
+      int secs = (int) reverse_diff;
+      int mins = secs / 60;
+      int hours = mins /60;
+      int days = hours / 24;
+      snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%dd %dh \n%dm %ds Left",
+	       days, hours % 24 , mins % 60 , secs % 60);
     }
   }
   /* More and more and more timescales!! */
