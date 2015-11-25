@@ -179,17 +179,78 @@ static void update_time() {
     end.tm_mday = 2;
     time_t start_in_secs = mktime(&start);
     time_t end_in_secs = mktime(&end);
-    time_t mm_time = (time_t) (fraction_alive * (total_time));
+    time_t mm_time = start_in_secs +
+      (time_t) (fraction_alive * (end_in_secs - start_in_secs));
     struct tm *mm_time_struct = gmtime(&mm_time);
-    strcat(format_str, "\n%l:%M:%S %p ");
-    strcat(format_str, suffix);
+    // no suffix for calendar time scales
+    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%l:%M:%S %p");
+    strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
+  }
+  else if (displayed_timescale == TS_HOUR) {
+    double fraction_alive = (double)time_duration / total_time;
+    // one hour goes from 2000-01-01 11:00 to 2000-01-01 12:00
+    struct tm start = {0};
+    start.tm_year = 100;
+    start.tm_mon = 0;
+    start.tm_mday = 1;
+    start.tm_hour = 11;
+    struct tm end = {0};
+    end.tm_year = 100;
+    end.tm_mon = 0;
+    end.tm_mday = 1;
+    end.tm_hour = 12;
+    time_t start_in_secs = mktime(&start);
+    time_t end_in_secs = mktime(&end);
+    time_t mm_time = start_in_secs +
+      (time_t) (fraction_alive * (end_in_secs - start_in_secs));
+    struct tm *mm_time_struct = gmtime(&mm_time);
+    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%l:%M:%S %p ");
+    strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
+  }
+  else if (displayed_timescale == TS_MONTH) {
+    double fraction_alive = (double)time_duration / total_time;
+    // one month goes from 2000-01-01 00:00 to 2000-02-01 00:00
+    struct tm start = {0};
+    start.tm_year = 100;
+    start.tm_mon = 0;
+    start.tm_mday = 1;
+    struct tm end = {0};
+    end.tm_year = 100;
+    end.tm_mon = 2;
+    end.tm_mday = 1;
+    time_t start_in_secs = mktime(&start);
+    time_t end_in_secs = mktime(&end);
+    time_t mm_time = start_in_secs +
+      (time_t) (fraction_alive * (end_in_secs - start_in_secs));
+    struct tm *mm_time_struct = gmtime(&mm_time);
+    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%b %e\n%l:%M:%S %p ");
+    strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
+  }
+  else if (displayed_timescale == TS_YEAR) {
+    double fraction_alive = (double)time_duration / total_time;
+    // one year goes from 2000-01-01 00:00 to 2001-01-01 00:00
+    struct tm start = {0};
+    start.tm_year = 100;
+    start.tm_mon = 0;
+    start.tm_mday = 1;
+    struct tm end = {0};
+    end.tm_year = 101;
+    end.tm_mon = 0;
+    end.tm_mday = 1;
+    time_t start_in_secs = mktime(&start);
+    time_t end_in_secs = mktime(&end);
+    time_t mm_time = start_in_secs +
+      (time_t) (fraction_alive * (end_in_secs - start_in_secs));
+    struct tm *mm_time_struct = gmtime(&mm_time);
+    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%b %e\n%l:%M:%S %p ");
     strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
   }
       
   /* More and more and more timescales!! */
-  /* TS_HOUR, */
-  /* TS_MONTH, */
-  /* TS_YEAR, */
   /* TS_UNIVERSE, */
   /* TS_X_UNIVERSE, */
   /* TS_X_UNIVERSE_2, */
