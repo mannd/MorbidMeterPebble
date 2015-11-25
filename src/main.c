@@ -3,7 +3,9 @@
 
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
-
+#define TOO_SOON_MESSAGE "\nToo Soon!"
+#define TOO_LATE_MESSAGE "\nTimer Complete!"
+#define NEGATIVE_TIME_DURATION_MESSAGE "\nEnd Sooner Than Start!"
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
@@ -23,12 +25,12 @@ static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
 static bool shake_wrist_toggles_time = true;
 static bool reverse_time = false;
+static bool local_time_show_seconds = true;
 static time_t start_date_time_in_secs = 0;
 static time_t end_date_time_in_secs = 0;
 
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
-static bool local_time_show_seconds = true;
 
 static timescale selected_timescale = TS_LOCAL_TIME;
 static timescale displayed_timescale = TS_LOCAL_TIME;
@@ -52,8 +54,27 @@ static void update_time() {
   struct tm *tick_time = localtime(&real_time);
   time_t diff = real_time - start_date_time_in_secs;
   time_t reverse_diff = end_date_time_in_secs - real_time;
+  time_t time_duration = end_date_time_in_secs - start_date_time_in_secs;
   // handle bad situations here
-  
+  /// TODO this gets everything stuck 
+  if (displayed_timescale != TS_LOCAL_TIME) {
+    if (time_duration <= 0) {
+      snprintf(time_buffer, sizeof(time_buffer),
+  	       MM_TITLE NEGATIVE_TIME_DURATION_MESSAGE);
+      return;
+    }
+    if (diff < 0) {
+      snprintf(time_buffer, sizeof(time_buffer),
+  	       MM_TITLE TOO_SOON_MESSAGE);
+      return;
+    }
+    else if (reverse_diff < 0) {
+      snprintf(time_buffer, sizeof(time_buffer),
+  	       MM_TITLE TOO_LATE_MESSAGE);
+      return;
+    }
+  }
+    
   if (displayed_timescale == TS_LOCAL_TIME) {
     // Write the current hours and minutes into the buffer
     if (twenty_four_hour_format) {
@@ -76,14 +97,12 @@ static void update_time() {
   }
   else if (displayed_timescale == TS_PERCENT) {
     if (!reverse_time) {
-      double percent_time = 100.0 * (double)diff /
-	(end_date_time_in_secs - start_date_time_in_secs);
+      double percent_time = 100.0 * (double)diff / time_duration;
       snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nDone", (int)percent_time,
 	       get_decimal_portion_of_double(percent_time));
     }
     else {
-      double percent_time = (double) 100.0 * (double)reverse_diff /
-	(end_date_time_in_secs - start_date_time_in_secs);
+      double percent_time = (double) 100.0 * (double)reverse_diff / time_duration;
       snprintf(time_buffer, sizeof(time_buffer), MM_TITLE "\n%d.%03d%%\nLeft", (int)percent_time,
 	       get_decimal_portion_of_double(percent_time));
     }
@@ -299,16 +318,17 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 static void tap_handler(AccelAxisType axis, int32_t direction) {
   /* (void)axis; */
   /* (void)direction; */
+  // return if Local Time or config doesn't allow shaking
   if (selected_timescale == TS_LOCAL_TIME || !shake_wrist_toggles_time) {
     return;
   }
-  // return if Local Time or config doesn't allow shaking
   if (displayed_timescale == selected_timescale) {
     displayed_timescale = alternative_timescale;
   }
   else {
     displayed_timescale = selected_timescale;
   }
+  update_time();
   set_timescale();
 }
   
