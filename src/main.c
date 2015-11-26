@@ -80,6 +80,20 @@ static void update_time() {
       return;
     }
   }
+  char format_str[40];
+  // Title alwasy on top line
+  // rest of message formatted by Pebble
+  strcpy(format_str, MM_TITLE "\n");
+  char suffix[9]; 
+  time_t time_duration;
+  if (!reverse_time) {
+    time_duration = diff;
+    strcpy(suffix, COMPLETE);
+  }
+  else {
+    time_duration = reverse_diff;
+    strcpy(suffix, LEFT);
+  }
 
   if (displayed_timescale == TS_LOCAL_TIME) {
     // Write the current hours and minutes into the buffer
@@ -100,25 +114,8 @@ static void update_time() {
 		 MM_TITLE DATE "\n%l:%M %p", tick_time);
       }
     }
-    return;
   }
-
-  char format_str[40];
-  // Title alwasy on top line
-  // rest of message formatted by Pebble
-  strcpy(format_str, MM_TITLE "\n");
-  char suffix[9]; 
-  time_t time_duration;
-  if (!reverse_time) {
-    time_duration = diff;
-    strcpy(suffix, COMPLETE);
-  }
-  else {
-    time_duration = reverse_diff;
-    strcpy(suffix, LEFT);
-  }
-
-  if (displayed_timescale == TS_PERCENT) {
+  else if (displayed_timescale == TS_PERCENT) {
       double percent_time = 100.0 * (double)time_duration / total_time;
       strcat(format_str, "%d.%03d%% ");
       strcat(format_str, suffix);
