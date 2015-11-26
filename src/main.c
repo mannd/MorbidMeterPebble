@@ -3,7 +3,7 @@
 
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
-#define COMPLETE "Complete"
+#define COMPLETE "Done"
 #define LEFT "Left"
 #define TOO_SOON_MESSAGE "\nToo Soon!"
 #define TOO_LATE_MESSAGE "\nTimer Complete!"
@@ -133,21 +133,21 @@ static void update_time() {
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)time_duration / 60);
   }
   else if (displayed_timescale == TS_HOURS) {
-    double hours = time_duration / SECS_IN_HOUR;
+    double hours = (double)time_duration / SECS_IN_HOUR;
     strcat(format_str, "%d.%03d Hours ");
     strcat(format_str, suffix);
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)hours,
 	       get_decimal_portion_of_double(hours));
   }
   else if (displayed_timescale == TS_DAYS) {
-    double days = time_duration / SECS_IN_DAY;
+    double days = (double)time_duration / SECS_IN_DAY;
     strcat(format_str, "%d.%03d \nDays ");
     strcat(format_str, suffix);
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)days,
 	       get_decimal_portion_of_double(days));
   }
   else if (displayed_timescale == TS_YEARS) {
-    double years = time_duration / SECS_IN_YEAR;
+    double years = (double)time_duration / SECS_IN_YEAR;
     strcat(format_str, "%d.%0d \nYears ");
     strcat(format_str, suffix);
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)years,
@@ -252,8 +252,9 @@ static void update_time() {
        15 billion years, so will use 15 million millenia instead
     */
     int universe_years = (int) (fraction_alive * 15000000);
-    strcat(format_str, reverse_time ? "-" : "");
-    strcat(format_str, "%d Millenia");
+    //    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%d Millenia ");
+    strcat(format_str, suffix);
     snprintf(time_buffer, sizeof(time_buffer), format_str, universe_years);
   }
   else if (displayed_timescale == TS_X_UNIVERSE) {
@@ -280,8 +281,9 @@ static void update_time() {
   else if (displayed_timescale == TS_X_UNIVERSE_2) {
     double fraction_alive = (double)time_duration / total_time;
     double universe_years = fraction_alive * 6000;
-    strcat(format_str, reverse_time ? "-" : "");
-    strcat(format_str, "%d.%03d Yrs");
+    //    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%d.%03d Yrs ");
+    strcat(format_str, suffix);
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
 	     get_decimal_portion_of_double(universe_years));
   }
