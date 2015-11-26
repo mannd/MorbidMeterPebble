@@ -70,7 +70,7 @@ static void update_time() {
   	       MM_TITLE TOO_SOON_MESSAGE);
       return;
     }
-    else if (reverse_diff <= 0) {
+    else if (reverse_diff < 0) {
       snprintf(time_buffer, sizeof(time_buffer),
   	       MM_TITLE TOO_LATE_MESSAGE);
       if (!timer_expired) {
