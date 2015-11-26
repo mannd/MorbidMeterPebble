@@ -293,6 +293,12 @@ static void update_time() {
     strcpy(time_buffer, "MorbidMeter\nSomething Ain't Right!?");
   }
   text_layer_set_text(s_time_layer, time_buffer);
+  // center layer
+  Layer *window_layer = window_get_root_layer(s_main_window);
+  GRect bounds = layer_get_bounds(window_layer);
+  GSize size = text_layer_get_content_size(s_time_layer);
+  layer_set_frame((Layer *)s_time_layer, GRect(0, (bounds.size.h - size.h) / 2, bounds.size.w,
+				      100));
 }
 
 static void set_timescale() {
