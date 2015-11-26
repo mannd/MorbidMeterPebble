@@ -395,7 +395,7 @@ static void main_window_load(Window *window) {
   s_timescale_layer = text_layer_create(GRect(0, bounds.size.h - 20,
 					      bounds.size.w, 20));
 #elif defined(PBL_ROUND)
-  s_timescale_layer = text_layer_create(GRect(0, bounds.size.h - 50,
+  s_timescale_layer = text_layer_create(GRect(0, bounds.size.h - 40,
 					      bounds.size.w, 20));
 #endif
   text_layer_set_background_color(s_timescale_layer, GColorClear);
