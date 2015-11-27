@@ -48,6 +48,16 @@ static void set_background_and_text_color(int color) {
 #endif
 }
 
+static void vertically_center_time_layer() {
+  // center layer
+  Layer *window_layer = window_get_root_layer(s_main_window);
+  GRect bounds = layer_get_bounds(window_layer);
+  GSize size = text_layer_get_content_size(s_time_layer);
+  layer_set_frame((Layer *)s_time_layer, GRect(0, (bounds.size.h - size.h) / 2, bounds.size.w,
+					       100));
+}
+
+
 static int get_decimal_portion_of_double(double d) {
   return (int)((d < 0 ? -d : d) * 1000) % 1000;
 }
@@ -63,11 +73,15 @@ static void update_time() {
     if (total_time <= 0) {
       snprintf(time_buffer, sizeof(time_buffer),
   	       MM_TITLE NEGATIVE_TIME_DURATION_MESSAGE);
+      text_layer_set_text(s_time_layer, time_buffer);
+      vertically_center_time_layer();
       return;
     }
     if (diff < 0) {
       snprintf(time_buffer, sizeof(time_buffer),
   	       MM_TITLE TOO_SOON_MESSAGE);
+      text_layer_set_text(s_time_layer, time_buffer);
+      vertically_center_time_layer();
       return;
     }
     else if (reverse_diff < 0) {
@@ -77,9 +91,12 @@ static void update_time() {
 	vibes_short_pulse();
 	timer_expired = true;
       }
+      text_layer_set_text(s_time_layer, time_buffer);
+      vertically_center_time_layer();
       return;
     }
   }
+  
   char format_str[40];
   // Title alwasy on top line
   // rest of message formatted by Pebble
@@ -295,12 +312,7 @@ static void update_time() {
     strcpy(time_buffer, "MorbidMeter\nSomething Ain't Right!?");
   }
   text_layer_set_text(s_time_layer, time_buffer);
-  // center layer
-  Layer *window_layer = window_get_root_layer(s_main_window);
-  GRect bounds = layer_get_bounds(window_layer);
-  GSize size = text_layer_get_content_size(s_time_layer);
-  layer_set_frame((Layer *)s_time_layer, GRect(0, (bounds.size.h - size.h) / 2, bounds.size.w,
-				      100));
+  vertically_center_time_layer();
 }
 
 static void set_timescale() {
@@ -387,10 +399,14 @@ static void main_window_load(Window *window) {
   s_time_layer = text_layer_create(GRect(0, 30, bounds.size.w, 100));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
-  text_layer_set_text(s_time_layer, MM_TITLE "\n00:00:00");
+  text_layer_set_text(s_time_layer, MM_TITLE "\nLoading");
   text_layer_set_font(s_time_layer,
 		      fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
+  // vertically center text
+  GSize size = text_layer_get_content_size(s_time_layer);
+  layer_set_frame((Layer *)s_time_layer, GRect(0, (bounds.size.h - size.h) / 2, bounds.size.w,
+				      100));
 
   // Create timescale TextLayer
 #if defined(PBL_RECT)
