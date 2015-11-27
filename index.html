@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel='stylesheet' type='text/css'
+	  href='/bower_components/Slate/dist/css/slate.min.css'>
+    <link rel='stylesheet' type='text/css' href='/css/style.css'>
+  </head>
+  <body>
+    <div class='item-container'>
+      <h1 class='title'>MorbidMeter Watchface<br>Configuration Page</h1>
+    </div>
+    <div class='item-container'>
+      <div class='item-container-content'>
+	<div class='item'>
+          Configure MorbidMeter and set up a timer.
+	  Experiment with different Timescales.
+	</div>
+      </div>
+    </div>
+    <div class='item-container'>
+      <div class='item-container-header'>Appearance and Behavior</div>
+      <div class='item-container-content'>
+	<label class='item'>
+          Background Color (for color watches)
+          <input id='backgroundColorPicker' type='text' name='background-color'
+		 class='item-color item-color-sunny' value='#000000'>
+	</label>
+	<label class='item'>
+          Local Time Use 24-Hour Format
+          <input id='timeFormatCheckBox' type='checkbox' name='24-hour-format'
+		 class='item-checkbox' checked>
+	</label>
+	<label class='item'>
+	  Local Time Show Seconds
+	  <input id='localTimeShowSecondsCheckBox' type='checkbox' name='local-time-show-secs'
+		 class='item-checkbox' checked>
+	</label>
+	<label class='item'>
+	  Shake Wrist Toggles Time
+	  <input id='shakeWristTogglesTimeCheckBox' type='checkbox' name='shake-wrist-toggle'
+		 class='item-checkbox' checked>
+	</label>
+      </div>
+    </div>
+    <div class='item-container'>
+      <div class='item-container-header'>Timer Configuration</div>
+      <div class='item-container-content'>
+	<label class='item'>
+          Timescale
+	  <select id='timescaleSelector' name='select-1' dir='rtl'
+		  class='item-select'>
+            <option class='item-select-option' selected>Local Time</option>
+            <option class='item-select-option'>Seconds
+            <option class='item-select-option'>Minutes</option>
+            <option class='item-select-option'>Hours</option>
+            <option class='item-select-option'>Days</option>
+	    <option class='item-select-option'>D H M S</option>
+            <option class='item-select-option'>Years</option>
+            <option class='item-select-option'>One Hour</option>
+            <option class='item-select-option'>One Day</option>
+            <option class='item-select-option'>One Month</option>
+            <option class='item-select-option'>One Year</option>
+            <option class='item-select-option'>Universe</option>
+            <option class='item-select-option'>X Universe</option>
+            <option class='item-select-options'>X Universe 2</option>
+            <option class='item-select-option'>Percent</option>
+	  </select>
+	</label>
+	<label class='item'>
+          Countdown Time
+	  <input id='reverseTimeCheckBox' type='checkbox' class='item-checkbox'
+		 name='reverse-time' checked>
+	</label>
+	<label class='item'>
+	  Start Date
+	  <input id='startDate' type='date' class='item-date' name='date-1'
+		 value='2015-02-12'>
+	</label>
+	<label class='item'>
+	  Start Time
+	  <input id='startTime' type='time' class='item-time' name='time-1'
+		 value='00:00'>
+	</label>
+	<label class='item'>
+	  End Date
+	  <input id='endDate' type='date' class='item-date' name='date-2'
+		 value='2018-02-12'>
+	</label>
+	<label class='item'>
+	  End Time
+	  <input id='endTime' type='time' class='item-time' name='time-2'
+		 value='00:00'>
+	</label>
+      </div>
+      <div class='item-container-footer'>
+	These settings will apply to watch after using the Submit button.
+      </div>
+    </div>
+
+    <div class='item-container'>
+      <div class='button-container'>
+	<input id='submitButton' type='button' class='item-button' value='SUBMIT'>
+      </div>
+    </div>
+
+    <script src='/bower_components/Slate/dist/js/slate.min.js'></script>
+    <script src='/js/main.js'></script>
+  </body>
+</html>
