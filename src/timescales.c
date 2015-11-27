@@ -65,8 +65,14 @@ timescale get_timescale_from_string(char *ts_name) {
   else if (strcmp(ts_name, X_UNIVERSE) == 0) {
     return TS_X_UNIVERSE;
   }
+  else if (strcmp(ts_name, X_UNIVERSE_2) == 0) {
+    return TS_X_UNIVERSE_2;
+  }
   else if (strcmp(ts_name, PERCENT) == 0) {
     return TS_PERCENT;
+  }
+  else if (strcmp(ts_name, ALT_TZ) == 0) {
+    return TS_ALT_TZ;
   }
   else if (strcmp(ts_name, NONE) == 0) {
     return TS_NONE;
