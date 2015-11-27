@@ -22,7 +22,17 @@
                 "menuIcon": true,
                 "name": "IMAGE_MENU_ITEM",
                 "type": "png"
-            }
+            },
+	    {
+		"file": "images/mmp_icon_48x48.png",
+		"name": "SKULL_IMAGE",
+		"type": "png"
+	    },
+	    {
+		"file": "images/mmp_icon_aplite_48x48.png",
+		"name": "SKULL_IMAGE_APLITE",
+		"type": "png"
+	    }
         ]
     },
     "sdkVersion": "3",

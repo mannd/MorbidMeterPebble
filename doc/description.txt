@@ -1,0 +1,4 @@
+* MorbidMeter description
+MorbidMeter for Pebble is a countdown (or count up!) clock, but more entertaining than most such beasts.  Set start and end dates and times, and then select what timescale to display.  You can select a traditional countdown of days, hours, minutes and seconds remaining, or get creative.  Measure your time interval over the course of a single hour, day, month or year.  Display the interval as a percentage done or remaining.  Even stretch your interval over the 15 billion years since the Big Bang! Oh, and by the way, you can shake your wrist and switch from your countdown timer to real time.
+
+If your response still is Huh? then please check out our website for more details.

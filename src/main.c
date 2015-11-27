@@ -22,6 +22,8 @@
 #define SECS_IN_YEAR (365.25 * SECS_IN_DAY)
     
 static Window *s_main_window;
+static GBitmap *s_bitmap;
+static BitmapLayer *s_bitmap_layer;
 static TextLayer *s_time_layer;
 static TextLayer *s_timescale_layer;
 static bool twenty_four_hour_format = false;
@@ -395,6 +397,21 @@ static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
+  // Create bitmap layer
+#if defined(PBL_BW)
+  s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SKULL_IMAGE_APLITE);
+#elif defined(PBL_COLOR)
+  s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_SKULL_IMAGE);
+#endif
+  s_bitmap_layer = bitmap_layer_create(GRect(0, 0, bounds.size.w, 48));
+  bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
+#if defined(PBL_BW)
+  bitmap_layer_set_compositing_mode(s_bitmap_layer, GCompOpAssign);
+#elif defined(PBL_COLOR)
+  bitmap_layer_set_compositing_mode(s_bitmap_layer, GCompOpSet);
+#endif
+
+  layer_add_child(window_layer, bitmap_layer_get_layer(s_bitmap_layer));
   // Create time TextLayer
   s_time_layer = text_layer_create(GRect(0, 30, bounds.size.w, 100));
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -461,6 +478,8 @@ static void main_window_load(Window *window) {
 }
 
 static void main_window_unload(Window *window) {
+  gbitmap_destroy(s_bitmap);
+  bitmap_layer_destroy(s_bitmap_layer);
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_timescale_layer);
 }
