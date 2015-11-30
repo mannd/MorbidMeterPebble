@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "timescales.h"
+#include "myatof.h"
 
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
@@ -69,8 +70,8 @@ static int get_decimal_portion_of_double(double d) {
 static void update_time() {
   time_t real_time = time(NULL);
   struct tm *tick_time = localtime(&real_time);
-  int64_t diff = real_time - start_date_time_in_secs;
-  int64_t reverse_diff = end_date_time_in_secs - real_time;
+  int64_t diff = (int64_t)real_time - start_date_time_in_secs;
+  int64_t reverse_diff = end_date_time_in_secs - (int64_t)real_time;
   int64_t total_time = end_date_time_in_secs - start_date_time_in_secs;
   // handle bad or time-out situations here
   if (displayed_timescale != TS_LOCAL_TIME) {
@@ -106,7 +107,7 @@ static void update_time() {
   // rest of message formatted by Pebble
   strcpy(format_str, MM_TITLE "\n");
   char suffix[9]; 
-  time_t time_duration;
+  int64_t time_duration;
   if (!reverse_time) {
     time_duration = diff;
     strcpy(suffix, COMPLETE);
@@ -144,9 +145,9 @@ static void update_time() {
 	       (int)percent_time, get_decimal_portion_of_double(percent_time));
   }
   else if (displayed_timescale == TS_SECONDS) {
-    strcat(format_str, "%d Secs ");
+    strcat(format_str, "%lu Secs ");
     strcat(format_str, suffix);
-    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)time_duration);
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (unsigned long)time_duration);
   }
   else if (displayed_timescale == TS_MINUTES) {
     strcat(format_str, "%d Mins ");
@@ -367,22 +368,33 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   }
   /// TODO
   /* Need to read these next two as strings and convert to int64.
-     Need to use atoi() or similar to convert.
+     Need to use atol() or similar to convert.
      e.g.
-     start_date_time_in_secs = (int64_t)atoi(start_date_time_in_secs_t->value->cstring);
+     start_date_time_in_secs = (int64_t)atol(start_date_time_in_secs_t->value->cstring);
      persist_write_string(start_date_time_in_secs_t->value->cstring);
      don't bother with converting to struct tm, it won't work.
    */
   if (start_date_time_in_secs_t) {
-    start_date_time_in_secs = atoi(start_date_time_in_secs_t->value->cstring);
+    start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
     persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->
 			 value->cstring);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs = %s", start_date_time_in_secs_t->value->cstring);
   }
   if (end_date_time_in_secs_t) {
-    end_date_time_in_secs = atoi(end_date_time_in_secs_t->value->cstring);
+    end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
     persist_write_string(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs_t->
 			 value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs = %s", end_date_time_in_secs_t->value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int) = %d", sizeof(int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int64_t) = %d", sizeof(int64_t));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long int) = %d", sizeof(long int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long long int) = %d", sizeof(long long int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned int) = %d", sizeof(unsigned int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned long int) = %d", sizeof(unsigned long int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(time_t) = %d", sizeof(time_t));   
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(end_date_time_in_secs) = %d", sizeof(end_date_time_in_secs));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(atol result) = %d", sizeof(atol("133455667776")));
+
   }
   // config resets timer buzz
   timer_expired = false;
@@ -462,11 +474,11 @@ static void main_window_load(Window *window) {
   }
   if (persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, tmp_buffer,
 			  sizeof(tmp_buffer)) > 0) {
-    start_date_time_in_secs = atoi(tmp_buffer);
+    start_date_time_in_secs = (int64_t)myatof(tmp_buffer);
   }
   if (persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, tmp_buffer,
 			  sizeof(tmp_buffer)) > 0) {
-    end_date_time_in_secs = atoi(tmp_buffer);
+    end_date_time_in_secs = (int64_t)myatof(tmp_buffer);
   }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
