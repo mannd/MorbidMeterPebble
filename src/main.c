@@ -2,6 +2,7 @@
 #include "timescales.h"
 #include "myatof.h"
 
+#define UINT_MAX  4294967295U
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
 #define COMPLETE "Done"
@@ -9,6 +10,7 @@
 #define TOO_SOON_MESSAGE "\nToo Soon!"
 #define TOO_LATE_MESSAGE "\nTimer Complete!"
 #define NEGATIVE_TIME_DURATION_MESSAGE "\nEnd Sooner Than Start!"
+#define OUT_OF_RANGE_SECS_MSG "Too Many Secs To Count"
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
@@ -37,7 +39,7 @@ static bool local_time_show_seconds = true;
 static int64_t start_date_time_in_secs = 0;
 static int64_t end_date_time_in_secs = 0;
 
-static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
+static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm Left";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
 
 static timescale selected_timescale = TS_LOCAL_TIME;
@@ -145,14 +147,23 @@ static void update_time() {
 	       (int)percent_time, get_decimal_portion_of_double(percent_time));
   }
   else if (displayed_timescale == TS_SECONDS) {
-    strcat(format_str, "%lu Secs ");
-    strcat(format_str, suffix);
+    // secs can overflow if time_duration > ~136 years, so don't allow this.
+    // Note that other timescales may overflow without warning for "ridiculous"
+    // numbers of years
+    if (time_duration >= UINT_MAX) {
+      strcat(format_str, OUT_OF_RANGE_SECS_MSG);
+    }
+    else {
+      strcat(format_str, "%lu Secs ");
+      strcat(format_str, suffix);
+    }
     snprintf(time_buffer, sizeof(time_buffer), format_str, (unsigned long)time_duration);
   }
   else if (displayed_timescale == TS_MINUTES) {
-    strcat(format_str, "%d Mins ");
+    strcat(format_str, "%lu Mins ");
     strcat(format_str, suffix);
-    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)time_duration / 60);
+    snprintf(time_buffer, sizeof(time_buffer), format_str,
+	     (unsigned long)time_duration / 60);
   }
   else if (displayed_timescale == TS_HOURS) {
     double hours = (double)time_duration / SECS_IN_HOUR;
@@ -176,14 +187,20 @@ static void update_time() {
 	       get_decimal_portion_of_double(years));
   }
   else if (displayed_timescale == TS_DAYS_HOURS_MINS_SECS) {
-    int secs = (int) time_duration;
-    int mins = secs / 60;
-    int hours = mins /60;
-    int days = hours / 24;
-    strcat(format_str, "%dd %dh \n%dm %ds ");
-    strcat(format_str, suffix);
-    snprintf(time_buffer, sizeof(time_buffer), format_str,
+    if (time_duration >= UINT_MAX) {
+      strcat(format_str, OUT_OF_RANGE_SECS_MSG);
+      snprintf(time_buffer, sizeof(time_buffer), format_str);
+    }
+    else {
+      unsigned long secs = (unsigned long) time_duration;
+      int mins = secs / 60;
+      int hours = mins /60;
+      int days = hours / 24;
+      strcat(format_str, "%dd %dh \n%dm %ds ");
+      strcat(format_str, suffix);
+      snprintf(time_buffer, sizeof(time_buffer), format_str,
 	       days, hours % 24, mins % 60, secs % 60);
+    }
   }
   else if (displayed_timescale == TS_DAY) {
     double fraction_alive = (double)time_duration / total_time;
