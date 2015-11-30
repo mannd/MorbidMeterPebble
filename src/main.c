@@ -16,6 +16,8 @@
 #define KEY_REVERSE_TIME 5
 #define KEY_START_DATE_TIME_IN_SECS 6
 #define KEY_END_DATE_TIME_IN_SECS 7
+#define KEY_START_DATE_TIME_IN_SECS_STRING 8
+#define KEY_END_DATE_TIME_IN_SECS_STRING 9
 
 #define SECS_IN_HOUR (60 * 60)
 #define SECS_IN_DAY (24 * SECS_IN_HOUR)
@@ -31,8 +33,8 @@ static bool shake_wrist_toggles_time = true;
 static bool reverse_time = false;
 static bool timer_expired = false;
 static bool local_time_show_seconds = true;
-static time_t start_date_time_in_secs = 0;
-static time_t end_date_time_in_secs = 0;
+static int64_t start_date_time_in_secs = 0;
+static int64_t end_date_time_in_secs = 0;
 
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
@@ -67,9 +69,9 @@ static int get_decimal_portion_of_double(double d) {
 static void update_time() {
   time_t real_time = time(NULL);
   struct tm *tick_time = localtime(&real_time);
-  time_t diff = real_time - start_date_time_in_secs;
-  time_t reverse_diff = end_date_time_in_secs - real_time;
-  time_t total_time = end_date_time_in_secs - start_date_time_in_secs;
+  int64_t diff = real_time - start_date_time_in_secs;
+  int64_t reverse_diff = end_date_time_in_secs - real_time;
+  int64_t total_time = end_date_time_in_secs - start_date_time_in_secs;
   // handle bad or time-out situations here
   if (displayed_timescale != TS_LOCAL_TIME) {
     if (total_time <= 0) {
@@ -328,8 +330,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
   Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
   Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
-  Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS);
-  Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS);
+  Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS_STRING);
+  Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS_STRING);
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -372,12 +374,15 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
      don't bother with converting to struct tm, it won't work.
    */
   if (start_date_time_in_secs_t) {
-    start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
-    persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
+    start_date_time_in_secs = atoi(start_date_time_in_secs_t->value->cstring);
+    persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->
+			 value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs = %s", start_date_time_in_secs_t->value->cstring);
   }
   if (end_date_time_in_secs_t) {
-    end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
-    persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
+    end_date_time_in_secs = atoi(end_date_time_in_secs_t->value->cstring);
+    persist_write_string(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs_t->
+			 value->cstring);
   }
   // config resets timer buzz
   timer_expired = false;
@@ -455,11 +460,13 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_REVERSE_TIME)) {
     reverse_time = persist_read_bool(KEY_REVERSE_TIME);
   }
-  if (persist_read_int(KEY_START_DATE_TIME_IN_SECS)) {
-    start_date_time_in_secs = persist_read_int(KEY_START_DATE_TIME_IN_SECS);
+  if (persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, tmp_buffer,
+			  sizeof(tmp_buffer)) > 0) {
+    start_date_time_in_secs = atoi(tmp_buffer);
   }
-  if (persist_read_int(KEY_END_DATE_TIME_IN_SECS)) {
-    end_date_time_in_secs = persist_read_int(KEY_END_DATE_TIME_IN_SECS);
+  if (persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, tmp_buffer,
+			  sizeof(tmp_buffer)) > 0) {
+    end_date_time_in_secs = atoi(tmp_buffer);
   }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));

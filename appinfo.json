@@ -7,7 +7,9 @@
 	"shakeWristTogglesTimeCheckBox": 4,
 	"reverseTimeCheckBox": 5,
 	"startDateTimeInSecs": 6,
-	"endDateTimeInSecs": 7
+	"endDateTimeInSecs": 7,
+	"startDateTimeInSecsString": 8,
+	"endDateTimeInSecsString": 9
     },
     "capabilities": [
         "configurable"

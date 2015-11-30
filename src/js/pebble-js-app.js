@@ -4,10 +4,10 @@ Pebble.addEventListener('ready', function() {
 });
 
 Pebble.addEventListener('showConfiguration', function() {
-//  var url = 'http://127.0.0.1:8080';
+  var url = 'http://127.0.0.1:8080';
 //  var url = 'http://6adb98e7.ngrok.io';
 //  var url = 'http://epstudiossoftware.com/pebble/config/';
-  var url = 'http://mannd.github.io/MorbidMeterPebble/';
+//  var url = 'http://mannd.github.io/MorbidMeterPebble/';
   console.log('Showing configuration page: ' + url);
   Pebble.openURL(url);
 });
@@ -26,7 +26,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
       shakeWristTogglesTimeCheckBox: configData.shakeWristTogglesTimeCheckBox ? 1 : 0,
       reverseTimeCheckBox: configData.reverseTimeCheckBox ? 1 : 0,
       startDateTimeInSecs: configData.startDateTimeInSecs,
-      endDateTimeInSecs: configData.endDateTimeInSecs
+      endDateTimeInSecs: configData.endDateTimeInSecs,
+      startDateTimeInSecsString: configData.startDateTimeInSecsString,
+      endDateTimeInSecsString: configData.endDateTimeInSecsString
     }, function() {
       console.log('Send successful!');
     }, function() {
