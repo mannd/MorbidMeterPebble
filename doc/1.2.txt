@@ -1,0 +1,7 @@
+MorbidMeter for Pebble v1.2 Release Notes
+Changes since v1.1
+* Squashed bug that would lose data when changing between watchfaces
+Changes since v1.0
+* All timescales can support time durations up to 136 years, most more
+* Messages for time durations out of range
+* X_UNIVERSE timescale modified, Pebble doesn't provide calendar support for 6000 year time periods
