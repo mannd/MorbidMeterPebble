@@ -1,6 +1,8 @@
 #include <pebble.h>
 #include "timescales.h"
+#include "myatof.h"
 
+#define UINT_MAX  4294967295U
 #define MM_TITLE "MorbidMeter"
 #define DATE "%n%b %e %Y"
 #define COMPLETE "Done"
@@ -8,6 +10,7 @@
 #define TOO_SOON_MESSAGE "\nToo Soon!"
 #define TOO_LATE_MESSAGE "\nTimer Complete!"
 #define NEGATIVE_TIME_DURATION_MESSAGE "\nEnd Sooner Than Start!"
+#define OUT_OF_RANGE_SECS_MSG "Too Many Secs To Count"
 #define KEY_BACKGROUND_COLOR 0
 #define KEY_TWENTY_FOUR_HOUR_FORMAT 1
 #define KEY_TIMESCALE 2
@@ -16,6 +19,8 @@
 #define KEY_REVERSE_TIME 5
 #define KEY_START_DATE_TIME_IN_SECS 6
 #define KEY_END_DATE_TIME_IN_SECS 7
+#define KEY_START_DATE_TIME_IN_SECS_STRING 8
+#define KEY_END_DATE_TIME_IN_SECS_STRING 9
 
 #define SECS_IN_HOUR (60 * 60)
 #define SECS_IN_DAY (24 * SECS_IN_HOUR)
@@ -31,10 +36,10 @@ static bool shake_wrist_toggles_time = true;
 static bool reverse_time = false;
 static bool timer_expired = false;
 static bool local_time_show_seconds = true;
-static time_t start_date_time_in_secs = 0;
-static time_t end_date_time_in_secs = 0;
+static int64_t start_date_time_in_secs = 0;
+static int64_t end_date_time_in_secs = 0;
 
-static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm";
+static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm Left";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
 
 static timescale selected_timescale = TS_LOCAL_TIME;
@@ -67,9 +72,9 @@ static int get_decimal_portion_of_double(double d) {
 static void update_time() {
   time_t real_time = time(NULL);
   struct tm *tick_time = localtime(&real_time);
-  time_t diff = real_time - start_date_time_in_secs;
-  time_t reverse_diff = end_date_time_in_secs - real_time;
-  time_t total_time = end_date_time_in_secs - start_date_time_in_secs;
+  int64_t diff = (int64_t)real_time - start_date_time_in_secs;
+  int64_t reverse_diff = end_date_time_in_secs - (int64_t)real_time;
+  int64_t total_time = end_date_time_in_secs - start_date_time_in_secs;
   // handle bad or time-out situations here
   if (displayed_timescale != TS_LOCAL_TIME) {
     if (total_time <= 0) {
@@ -104,7 +109,7 @@ static void update_time() {
   // rest of message formatted by Pebble
   strcpy(format_str, MM_TITLE "\n");
   char suffix[9]; 
-  time_t time_duration;
+  int64_t time_duration;
   if (!reverse_time) {
     time_duration = diff;
     strcpy(suffix, COMPLETE);
@@ -142,14 +147,23 @@ static void update_time() {
 	       (int)percent_time, get_decimal_portion_of_double(percent_time));
   }
   else if (displayed_timescale == TS_SECONDS) {
-    strcat(format_str, "%d Secs ");
-    strcat(format_str, suffix);
-    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)time_duration);
+    // secs can overflow if time_duration > ~136 years, so don't allow this.
+    // Note that other timescales may overflow without warning for "ridiculous"
+    // numbers of years
+    if (time_duration >= UINT_MAX) {
+      strcat(format_str, OUT_OF_RANGE_SECS_MSG);
+    }
+    else {
+      strcat(format_str, "%lu Secs ");
+      strcat(format_str, suffix);
+    }
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (unsigned long)time_duration);
   }
   else if (displayed_timescale == TS_MINUTES) {
-    strcat(format_str, "%d Mins ");
+    strcat(format_str, "%lu Mins ");
     strcat(format_str, suffix);
-    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)time_duration / 60);
+    snprintf(time_buffer, sizeof(time_buffer), format_str,
+	     (unsigned long)time_duration / 60);
   }
   else if (displayed_timescale == TS_HOURS) {
     double hours = (double)time_duration / SECS_IN_HOUR;
@@ -173,14 +187,20 @@ static void update_time() {
 	       get_decimal_portion_of_double(years));
   }
   else if (displayed_timescale == TS_DAYS_HOURS_MINS_SECS) {
-    int secs = (int) time_duration;
-    int mins = secs / 60;
-    int hours = mins /60;
-    int days = hours / 24;
-    strcat(format_str, "%dd %dh \n%dm %ds ");
-    strcat(format_str, suffix);
-    snprintf(time_buffer, sizeof(time_buffer), format_str,
+    if (time_duration >= UINT_MAX) {
+      strcat(format_str, OUT_OF_RANGE_SECS_MSG);
+      snprintf(time_buffer, sizeof(time_buffer), format_str);
+    }
+    else {
+      unsigned long secs = (unsigned long) time_duration;
+      int mins = secs / 60;
+      int hours = mins /60;
+      int days = hours / 24;
+      strcat(format_str, "%dd %dh \n%dm %ds ");
+      strcat(format_str, suffix);
+      snprintf(time_buffer, sizeof(time_buffer), format_str,
 	       days, hours % 24, mins % 60, secs % 60);
+    }
   }
   else if (displayed_timescale == TS_DAY) {
     double fraction_alive = (double)time_duration / total_time;
@@ -277,25 +297,34 @@ static void update_time() {
     snprintf(time_buffer, sizeof(time_buffer), format_str, universe_years);
   }
   else if (displayed_timescale == TS_X_UNIVERSE) {
+    // Pebble can't support enough years to make X_UNIVERSE work, so..
+    /* double fraction_alive = (double)time_duration / total_time; */
+    /* // one year goes from 4000 BC to 2001 AD */
+    /* struct tm start = {0}; */
+    /* // struct tm counts years from 1900 */
+    /* start.tm_year = -5900; */
+    /* start.tm_mon = 0; */
+    /* start.tm_mday = 1; */
+    /* struct tm end = {0}; */
+    /* end.tm_year = 101; */
+    /* end.tm_mon = 0; */
+    /* end.tm_mday = 1; */
+    /* int64_t start_in_secs = mktime(&start); */
+    /* int64_t end_in_secs = mktime(&end); */
+    /* time_t mm_time = start_in_secs + */
+    /*   (time_t) (fraction_alive * (end_in_secs - start_in_secs)); */
+    /* struct tm *mm_time_struct = gmtime(&mm_time); */
+    /* strcat(format_str, reverse_time ? "-" : ""); */
+    /* strcat(format_str, "%b %e %Y\n%l:%M:%S %p "); */
+    /* strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct); */
     double fraction_alive = (double)time_duration / total_time;
-    // one year goes from 4000 BC to 2001 AD
-    struct tm start = {0};
-    // struct tm counts years from 1900
-    start.tm_year = -5900;
-    start.tm_mon = 0;
-    start.tm_mday = 1;
-    struct tm end = {0};
-    end.tm_year = 101;
-    end.tm_mon = 0;
-    end.tm_mday = 1;
-    time_t start_in_secs = mktime(&start);
-    time_t end_in_secs = mktime(&end);
-    time_t mm_time = start_in_secs +
-      (time_t) (fraction_alive * (end_in_secs - start_in_secs));
-    struct tm *mm_time_struct = gmtime(&mm_time);
-    strcat(format_str, reverse_time ? "-" : "");
-    strcat(format_str, "%b %e %Y\n%l:%M:%S %p ");
-    strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
+    double universe_years = fraction_alive * 6000;
+    //    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%d.%03d Yrs ");
+    strcat(format_str, reverse_time ? "To Armageddon" : "From Creation");
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
+	     get_decimal_portion_of_double(universe_years));
+    
   }
   else if (displayed_timescale == TS_X_UNIVERSE_2) {
     double fraction_alive = (double)time_duration / total_time;
@@ -328,8 +357,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
   Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
   Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
-  Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS);
-  Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS);
+  Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS_STRING);
+  Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS_STRING);
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -363,34 +392,40 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     // prepend '-' to timescale with reverse time?
     /* APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time); */
   }
+  /// TODO
+  /* Need to read these next two as strings and convert to int64.
+     Need to use atol() or similar to convert.
+     e.g.
+     start_date_time_in_secs = (int64_t)atol(start_date_time_in_secs_t->value->cstring);
+     persist_write_string(start_date_time_in_secs_t->value->cstring);
+     don't bother with converting to struct tm, it won't work.
+   */
   if (start_date_time_in_secs_t) {
-    start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
-    persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
-    struct tm *time_struct = localtime(&start_date_time_in_secs);
-    char tmp_date_buffer[30];
-    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
-    	     DATE "\n%l:%M %p", time_struct);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start date time = %s", tmp_date_buffer);
+    start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
+    persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->
+			 value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs = %s", start_date_time_in_secs_t->value->cstring);
   }
   if (end_date_time_in_secs_t) {
-    end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
-    persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
-    struct tm *time_struct = localtime(&end_date_time_in_secs);
-    char tmp_date_buffer[30];
-    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
-    	     DATE "\n%l:%M %p", time_struct);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "end date time = %s", tmp_date_buffer);
-    time_t real_time = time(NULL);
-    time_t diff = real_time - start_date_time_in_secs;
-    time_t reverse_diff = end_date_time_in_secs - real_time;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "real_time = %d, diff = %d, reverse_diff = %d",
-	    (int)real_time, (int)diff, (int)reverse_diff);
+    end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
+    persist_write_string(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs_t->
+			 value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs = %s", end_date_time_in_secs_t->value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int) = %d", sizeof(int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int64_t) = %d", sizeof(int64_t));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long int) = %d", sizeof(long int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long long int) = %d", sizeof(long long int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned int) = %d", sizeof(unsigned int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned long int) = %d", sizeof(unsigned long int));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(time_t) = %d", sizeof(time_t));   
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(end_date_time_in_secs) = %d", sizeof(end_date_time_in_secs));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(atol result) = %d", sizeof(atol("133455667776")));
+
   }
   // config resets timer buzz
   timer_expired = false;
   set_timescale();
   update_time();
-
 }
 
 static void main_window_load(Window *window) {
@@ -463,11 +498,13 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_REVERSE_TIME)) {
     reverse_time = persist_read_bool(KEY_REVERSE_TIME);
   }
-  if (persist_read_int(KEY_START_DATE_TIME_IN_SECS)) {
-    start_date_time_in_secs = persist_read_int(KEY_START_DATE_TIME_IN_SECS);
+  if (persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, tmp_buffer,
+			  sizeof(tmp_buffer)) > 0) {
+    start_date_time_in_secs = (int64_t)myatof(tmp_buffer);
   }
-  if (persist_read_int(KEY_END_DATE_TIME_IN_SECS)) {
-    end_date_time_in_secs = persist_read_int(KEY_END_DATE_TIME_IN_SECS);
+  if (persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, tmp_buffer,
+			  sizeof(tmp_buffer)) > 0) {
+    end_date_time_in_secs = (int64_t)myatof(tmp_buffer);
   }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));

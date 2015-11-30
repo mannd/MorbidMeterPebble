@@ -7,7 +7,9 @@
 	"shakeWristTogglesTimeCheckBox": 4,
 	"reverseTimeCheckBox": 5,
 	"startDateTimeInSecs": 6,
-	"endDateTimeInSecs": 7
+	"endDateTimeInSecs": 7,
+	"startDateTimeInSecsString": 8,
+	"endDateTimeInSecsString": 9
     },
     "capabilities": [
         "configurable"
@@ -43,7 +45,7 @@
 	"chalk"
     ],
     "uuid": "2b1137cb-e8fc-4225-93fb-f546bb9d995e",
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }

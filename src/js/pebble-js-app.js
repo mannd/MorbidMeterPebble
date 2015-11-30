@@ -26,7 +26,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
       shakeWristTogglesTimeCheckBox: configData.shakeWristTogglesTimeCheckBox ? 1 : 0,
       reverseTimeCheckBox: configData.reverseTimeCheckBox ? 1 : 0,
       startDateTimeInSecs: configData.startDateTimeInSecs,
-      endDateTimeInSecs: configData.endDateTimeInSecs
+      endDateTimeInSecs: configData.endDateTimeInSecs,
+      startDateTimeInSecsString: configData.startDateTimeInSecsString,
+      endDateTimeInSecsString: configData.endDateTimeInSecsString
     }, function() {
       console.log('Send successful!');
     }, function() {
