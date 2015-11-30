@@ -41,7 +41,6 @@ static int64_t end_date_time_in_secs = 0;
 
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm Left";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
-static char tmp_buffer[50];
 
 static timescale selected_timescale = TS_LOCAL_TIME;
 static timescale displayed_timescale = TS_LOCAL_TIME;
@@ -391,33 +390,14 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   if (reverse_time_t) {
     reverse_time = (bool) reverse_time_t->value->int8;
     persist_write_bool(KEY_REVERSE_TIME, reverse_time);
-    // update timescale and reverse time
-    // prepend '-' to timescale with reverse time?
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time); */
   }
   if (start_date_time_in_secs_t) {
-    /* double start_date_converted = myatof(start_date_time_in_secs_t->value->cstring); */
+    persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->value->cstring);
     start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
-    persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->
-			 value->cstring);
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs = %s", start_date_time_in_secs_t->value->cstring); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs as int = %d", (int)start_date_time_in_secs); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_converted = %d", (int)start_date_converted); */
   }
   if (end_date_time_in_secs_t) {
+    persist_write_string(KEY_END_DATE_TIME_IN_SECS_STRING, end_date_time_in_secs_t->value->cstring);
     end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
-    persist_write_string(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs_t->
-			 value->cstring);
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs = %s", end_date_time_in_secs_t->value->cstring); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int) = %d", sizeof(int)); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int64_t) = %d", sizeof(int64_t)); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long int) = %d", sizeof(long int)); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long long int) = %d", sizeof(long long int)); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned int) = %d", sizeof(unsigned int)); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned long int) = %d", sizeof(unsigned long int)); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(time_t) = %d", sizeof(time_t));    */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(end_date_time_in_secs) = %d", sizeof(end_date_time_in_secs)); */
-    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(atol result) = %d", sizeof(atol("133455667776"))); */
   }
   // config resets timer buzz
   timer_expired = false;
@@ -480,12 +460,10 @@ static void main_window_load(Window *window) {
     twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
 
-  if (persist_read_string(KEY_TIMESCALE, tmp_buffer,
-    			  sizeof(tmp_buffer)) > 0) {
-    strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
+  if (persist_exists(KEY_TIMESCALE)) {
+    persist_read_string(KEY_TIMESCALE, timescale_buffer, sizeof(timescale_buffer));
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale read");
   }
   if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
     local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
@@ -496,14 +474,17 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_REVERSE_TIME)) {
     reverse_time = persist_read_bool(KEY_REVERSE_TIME);
   }
-  if (persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, tmp_buffer,
-			  sizeof(tmp_buffer)) > 0) {
-    start_date_time_in_secs = (int64_t)myatof(tmp_buffer);
+  char buf[30];
+  if (persist_exists(KEY_START_DATE_TIME_IN_SECS_STRING)) {
+    persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, buf,
+			sizeof(buf));
+    start_date_time_in_secs = (int64_t)myatof(buf);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start = %d", (int)start_date_time_in_secs);
   }
-  if (persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, tmp_buffer,
-			  sizeof(tmp_buffer)) > 0) {
-    end_date_time_in_secs = (int64_t)myatof(tmp_buffer);
+  if (persist_exists(KEY_END_DATE_TIME_IN_SECS_STRING)) {
+    persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, buf,
+			sizeof(buf));
+    end_date_time_in_secs = (int64_t)myatof(buf);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end = %d", (int)end_date_time_in_secs);
   }
   
