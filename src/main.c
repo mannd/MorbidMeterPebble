@@ -363,34 +363,26 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     // prepend '-' to timescale with reverse time?
     /* APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time); */
   }
+  /// TODO
+  /* Need to read these next two as strings and convert to int64.
+     Need to use atoi() or similar to convert.
+     e.g.
+     start_date_time_in_secs = (int64_t)atoi(start_date_time_in_secs_t->value->cstring);
+     persist_write_string(start_date_time_in_secs_t->value->cstring);
+     don't bother with converting to struct tm, it won't work.
+   */
   if (start_date_time_in_secs_t) {
     start_date_time_in_secs = (time_t)start_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs);
-    struct tm *time_struct = localtime(&start_date_time_in_secs);
-    char tmp_date_buffer[30];
-    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
-    	     DATE "\n%l:%M %p", time_struct);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start date time = %s", tmp_date_buffer);
   }
   if (end_date_time_in_secs_t) {
     end_date_time_in_secs = (time_t)end_date_time_in_secs_t->value->uint32;
     persist_write_int(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs);
-    struct tm *time_struct = localtime(&end_date_time_in_secs);
-    char tmp_date_buffer[30];
-    strftime(tmp_date_buffer, sizeof(tmp_date_buffer),
-    	     DATE "\n%l:%M %p", time_struct);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "end date time = %s", tmp_date_buffer);
-    time_t real_time = time(NULL);
-    time_t diff = real_time - start_date_time_in_secs;
-    time_t reverse_diff = end_date_time_in_secs - real_time;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "real_time = %d, diff = %d, reverse_diff = %d",
-	    (int)real_time, (int)diff, (int)reverse_diff);
   }
   // config resets timer buzz
   timer_expired = false;
   set_timescale();
   update_time();
-
 }
 
 static void main_window_load(Window *window) {
