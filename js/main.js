@@ -82,7 +82,12 @@ function getAndStoreConfigData() {
     startDateTimeInSecs: getTimeFromDateAndTime($startDate.val(),
                                              $startTime.val()),
     endDateTimeInSecs: getTimeFromDateAndTime($endDate.val(),
-                                             $endTime.val())
+                                             $endTime.val()),
+    // also need string versions of these for new version
+    startDateTimeInSecsString: (getTimeFromDateAndTime($startDate.val(),
+                                             $startTime.val())).toString(),
+    endDateTimeInSecsString: (getTimeFromDateAndTime($endDate.val(),
+                                             $endTime.val())).toString()
   };
 
   localStorage.backgroundColor = options.backgroundColor;
