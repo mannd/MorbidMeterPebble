@@ -392,35 +392,29 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     // prepend '-' to timescale with reverse time?
     /* APP_LOG(APP_LOG_LEVEL_DEBUG, "reverse_time = %d", reverse_time); */
   }
-  /// TODO
-  /* Need to read these next two as strings and convert to int64.
-     Need to use atol() or similar to convert.
-     e.g.
-     start_date_time_in_secs = (int64_t)atol(start_date_time_in_secs_t->value->cstring);
-     persist_write_string(start_date_time_in_secs_t->value->cstring);
-     don't bother with converting to struct tm, it won't work.
-   */
   if (start_date_time_in_secs_t) {
+    /* double start_date_converted = myatof(start_date_time_in_secs_t->value->cstring); */
     start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
     persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->
 			 value->cstring);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs = %s", start_date_time_in_secs_t->value->cstring);
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs = %s", start_date_time_in_secs_t->value->cstring); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_time_in_secs as int = %d", (int)start_date_time_in_secs); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "start_date_converted = %d", (int)start_date_converted); */
   }
   if (end_date_time_in_secs_t) {
     end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
     persist_write_string(KEY_END_DATE_TIME_IN_SECS, end_date_time_in_secs_t->
 			 value->cstring);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs = %s", end_date_time_in_secs_t->value->cstring);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int) = %d", sizeof(int));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int64_t) = %d", sizeof(int64_t));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long int) = %d", sizeof(long int));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long long int) = %d", sizeof(long long int));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned int) = %d", sizeof(unsigned int));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned long int) = %d", sizeof(unsigned long int));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(time_t) = %d", sizeof(time_t));   
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(end_date_time_in_secs) = %d", sizeof(end_date_time_in_secs));
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(atol result) = %d", sizeof(atol("133455667776")));
-
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "end_date_time_in_secs = %s", end_date_time_in_secs_t->value->cstring); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int) = %d", sizeof(int)); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(int64_t) = %d", sizeof(int64_t)); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long int) = %d", sizeof(long int)); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(long long int) = %d", sizeof(long long int)); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned int) = %d", sizeof(unsigned int)); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(unsigned long int) = %d", sizeof(unsigned long int)); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(time_t) = %d", sizeof(time_t));    */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(end_date_time_in_secs) = %d", sizeof(end_date_time_in_secs)); */
+    /* APP_LOG(APP_LOG_LEVEL_DEBUG, "sizeof(atol result) = %d", sizeof(atol("133455667776"))); */
   }
   // config resets timer buzz
   timer_expired = false;
