@@ -41,6 +41,7 @@ static int64_t end_date_time_in_secs = 0;
 
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm Left";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
+static char tmp_buffer[50];
 
 static timescale selected_timescale = TS_LOCAL_TIME;
 static timescale displayed_timescale = TS_LOCAL_TIME;
@@ -78,8 +79,10 @@ static void update_time() {
   // handle bad or time-out situations here
   if (displayed_timescale != TS_LOCAL_TIME) {
     if (total_time <= 0) {
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "end time = %d", (int)end_date_time_in_secs);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "start time = %d", (int)start_date_time_in_secs);
       snprintf(time_buffer, sizeof(time_buffer),
-  	       MM_TITLE NEGATIVE_TIME_DURATION_MESSAGE);
+    	       MM_TITLE NEGATIVE_TIME_DURATION_MESSAGE);
       text_layer_set_text(s_time_layer, time_buffer);
       vertically_center_time_layer();
       return;
@@ -476,12 +479,13 @@ static void main_window_load(Window *window) {
   if (persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT)) {
     twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
-  char tmp_buffer[sizeof(timescale_buffer)];
+
   if (persist_read_string(KEY_TIMESCALE, tmp_buffer,
     			  sizeof(tmp_buffer)) > 0) {
     strncpy(timescale_buffer, tmp_buffer, sizeof(timescale_buffer));
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "timescale read");
   }
   if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
     local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
@@ -495,10 +499,12 @@ static void main_window_load(Window *window) {
   if (persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, tmp_buffer,
 			  sizeof(tmp_buffer)) > 0) {
     start_date_time_in_secs = (int64_t)myatof(tmp_buffer);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "start = %d", (int)start_date_time_in_secs);
   }
   if (persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, tmp_buffer,
 			  sizeof(tmp_buffer)) > 0) {
     end_date_time_in_secs = (int64_t)myatof(tmp_buffer);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "end = %d", (int)end_date_time_in_secs);
   }
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
