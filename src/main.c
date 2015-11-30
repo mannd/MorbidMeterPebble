@@ -297,25 +297,34 @@ static void update_time() {
     snprintf(time_buffer, sizeof(time_buffer), format_str, universe_years);
   }
   else if (displayed_timescale == TS_X_UNIVERSE) {
+    // Pebble can't support enough years to make X_UNIVERSE work, so..
+    /* double fraction_alive = (double)time_duration / total_time; */
+    /* // one year goes from 4000 BC to 2001 AD */
+    /* struct tm start = {0}; */
+    /* // struct tm counts years from 1900 */
+    /* start.tm_year = -5900; */
+    /* start.tm_mon = 0; */
+    /* start.tm_mday = 1; */
+    /* struct tm end = {0}; */
+    /* end.tm_year = 101; */
+    /* end.tm_mon = 0; */
+    /* end.tm_mday = 1; */
+    /* int64_t start_in_secs = mktime(&start); */
+    /* int64_t end_in_secs = mktime(&end); */
+    /* time_t mm_time = start_in_secs + */
+    /*   (time_t) (fraction_alive * (end_in_secs - start_in_secs)); */
+    /* struct tm *mm_time_struct = gmtime(&mm_time); */
+    /* strcat(format_str, reverse_time ? "-" : ""); */
+    /* strcat(format_str, "%b %e %Y\n%l:%M:%S %p "); */
+    /* strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct); */
     double fraction_alive = (double)time_duration / total_time;
-    // one year goes from 4000 BC to 2001 AD
-    struct tm start = {0};
-    // struct tm counts years from 1900
-    start.tm_year = -5900;
-    start.tm_mon = 0;
-    start.tm_mday = 1;
-    struct tm end = {0};
-    end.tm_year = 101;
-    end.tm_mon = 0;
-    end.tm_mday = 1;
-    time_t start_in_secs = mktime(&start);
-    time_t end_in_secs = mktime(&end);
-    time_t mm_time = start_in_secs +
-      (time_t) (fraction_alive * (end_in_secs - start_in_secs));
-    struct tm *mm_time_struct = gmtime(&mm_time);
-    strcat(format_str, reverse_time ? "-" : "");
-    strcat(format_str, "%b %e %Y\n%l:%M:%S %p ");
-    strftime(time_buffer, sizeof(time_buffer), format_str, mm_time_struct);
+    double universe_years = fraction_alive * 6000;
+    //    strcat(format_str, reverse_time ? "-" : "");
+    strcat(format_str, "%d.%03d Yrs ");
+    strcat(format_str, reverse_time ? "To Armageddon" : "From Creation");
+    snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
+	     get_decimal_portion_of_double(universe_years));
+    
   }
   else if (displayed_timescale == TS_X_UNIVERSE_2) {
     double fraction_alive = (double)time_duration / total_time;
