@@ -4,10 +4,10 @@ Pebble.addEventListener('ready', function() {
 });
 
 Pebble.addEventListener('showConfiguration', function() {
-  var url = 'http://127.0.0.1:8080';
+//  var url = 'http://127.0.0.1:8080';
 //  var url = 'http://6adb98e7.ngrok.io';
 //  var url = 'http://epstudiossoftware.com/pebble/config/';
-//  var url = 'http://mannd.github.io/MorbidMeterPebble/';
+  var url = 'http://mannd.github.io/MorbidMeterPebble/';
   console.log('Showing configuration page: ' + url);
   Pebble.openURL(url);
 });
