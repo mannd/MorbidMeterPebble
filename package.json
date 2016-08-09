@@ -1,0 +1,62 @@
+{
+  "version": "1.2.0",
+  "author": "EP Studios",
+  "private": true,
+  "dependencies": {},
+  "keywords": [
+    "pebble-app"
+  ],
+  "pebble": {
+    "sdkVersion": "3",
+    "resources": {
+      "media": [
+        {
+          "menuIcon": true,
+          "type": "png",
+          "name": "IMAGE_MENU_ITEM",
+          "file": "images/mmpebble_menu_icon_28x28.png"
+        },
+        {
+          "type": "png",
+          "name": "SKULL_IMAGE",
+          "file": "images/mmp_icon_48x48.png"
+        },
+        {
+          "type": "png",
+          "name": "SKULL_IMAGE_APLITE",
+          "file": "images/mmp_icon_aplite_48x48.png"
+        }
+      ]
+    },
+    "projectType": "native",
+    "uuid": "2b1137cb-e8fc-4225-93fb-f546bb9d995e",
+    "messageKeys": {
+      "endDateTimeInSecs": 7,
+      "endDateTimeInSecsString": 9,
+      "twentyFourHourFormat": 1,
+      "reverseTimeCheckBox": 5,
+      "localTimeShowSecondsCheckBox": 3,
+      "startDateTimeInSecs": 6,
+      "backgroundColor": 0,
+      "startDateTimeInSecsString": 8,
+      "timescaleSelector": 2,
+      "shakeWristTogglesTimeCheckBox": 4
+    },
+    "enableMultiJS": false,
+    "displayName": "MorbidMeter",
+    "watchapp": {
+      "onlyShownOnCommunication": false,
+      "hiddenApp": false,
+      "watchface": true
+    },
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk"
+    ],
+    "capabilities": [
+      "configurable"
+    ]
+  },
+  "name": "MorbidMeter"
+}
