@@ -72,6 +72,8 @@ static int get_decimal_portion_of_double(double d) {
 static double random_double() {
   // returns random double between 0 and 1
   return (double)rand() / (double)RAND_MAX;
+  // use below if we need to exclude 1.0 to avoid having timer finish prematurely
+  // return (double)ran() / (double)((unsigned)RAND_MAX + 1);
 }
 
 static void update_time() {
