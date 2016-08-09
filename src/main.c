@@ -69,6 +69,11 @@ static int get_decimal_portion_of_double(double d) {
   return (int)((d < 0 ? -d : d) * 1000) % 1000;
 }
 
+static double random_double() {
+  // returns random double between 0 and 1
+  return (double)rand() / (double)RAND_MAX;
+}
+
 static void update_time() {
   time_t real_time = time(NULL);
   struct tm *tick_time = localtime(&real_time);
@@ -337,7 +342,11 @@ static void update_time() {
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
 	     get_decimal_portion_of_double(universe_years));
   }
-      
+  /* else if (displayed_timescale == TS_RANDOM) { */
+  /*   strcat(format_str, "0.%03d"); */
+  /*   strcat(format_str, suffix); */
+  /*   snprintf(time_buffer, sizeof(time_buffer), format_str, random_double()); */
+  /* } */
   /* More and more and more timescales!! */
   /* TS_ALT_TZ -- maybe next edition or not at all */
 
@@ -399,6 +408,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     persist_write_string(KEY_END_DATE_TIME_IN_SECS_STRING, end_date_time_in_secs_t->value->cstring);
     end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
   }
+  // reseed random number generator
+  srand(time(NULL));
   // config resets timer buzz
   timer_expired = false;
   set_timescale();

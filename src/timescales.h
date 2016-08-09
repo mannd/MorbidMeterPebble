@@ -22,6 +22,7 @@
 #define ALT_TZ "Alt Timezone"
 #define NONE "None"
 #define DEBUG "Debug"
+#define RANDOM "Random"
 
 typedef enum {
   TS_LOCAL_TIME,
@@ -42,6 +43,7 @@ typedef enum {
   TS_ALT_TZ,
   TS_NONE,
   TS_DEBUG,
+  TS_RANDOM,
   TS_ERROR
 } timescale;
 
