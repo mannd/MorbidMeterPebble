@@ -2,7 +2,9 @@
   "version": "1.2.0",
   "author": "EP Studios",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "pebble-clay": "^1.0.2"
+  },
   "keywords": [
     "pebble-app"
   ],
@@ -30,19 +32,15 @@
     },
     "projectType": "native",
     "uuid": "2b1137cb-e8fc-4225-93fb-f546bb9d995e",
-    "messageKeys": {
-      "endDateTimeInSecs": 7,
-      "endDateTimeInSecsString": 9,
-      "twentyFourHourFormat": 1,
-      "reverseTimeCheckBox": 5,
-      "localTimeShowSecondsCheckBox": 3,
-      "startDateTimeInSecs": 6,
-      "backgroundColor": 0,
-      "startDateTimeInSecsString": 8,
-      "timescaleSelector": 2,
-      "shakeWristTogglesTimeCheckBox": 4
-    },
-    "enableMultiJS": false,
+      "messageKeys": [
+	  "Temperature",
+	  "WindSpeed",
+	  "WindDirection",
+	  "RequestData",
+	  "LocationName"
+      ],
+
+    "enableMultiJS": true,
     "displayName": "MorbidMeter",
     "watchapp": {
       "onlyShownOnCommunication": false,
