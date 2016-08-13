@@ -119,64 +119,45 @@ module.exports = [
 		"label": "Countdown Time",
 		"defaultValue": false
 	    },
-	    // 			{
-	    //  				"type": "select",
-	    //  				"messageKey": "SELECT_BATTERY_COLOUR",
-	    //  				"defaultValue": "white",
-	    //  				"label": "Low battery colour:",
-	    //  				"options": [
-	    //  					{ 
-	    //  						"label": "white",
-	    //  						"value": "white" 
-	    // 					},
-	    // 					{ 
-	    // 						"label": "black",
-	    // 						"value": "black" 
-	    // 					},
-	    // 				]
-	    // 			},
-	]
-    },
-    {
- 	"type": "section",
- 	"items": [
-	    // 			{
-	    // 				"type": "select",
-	    // 				"messageKey": "SELECT_DATE_BOTTOM",
-	    // 				"defaultValue": "0",
-	    // 				"label": "Date layout",
-	    // 				"options": [
-	    // 					{ 
-	    // 						"label": "Day Month",
-	    // 						"value": "0" 
-	    // 					},
-	    // 					{ 
-	    // 						"label": "Month Day",
-	    // 						"value": "1" 
-	    // 					},
-	    // 				]
-	    // 			},
 	    {
-		"type": "toggle",
-		"messageKey": "TOGGLE_SUFFIX",
-		"label": "Toggle suffix for date",
-		//				"description": "You may need to wait a minute for the change to occur",
-		"defaultValue": false,
+		"type": "input",
+		"messageKey": "KEY_START_DATE",
+		"label": "Start Date",
+		"attributes":
+		{
+		    "type": "date"
+		}
 	    },
+	    {
+		"type": "input",
+		"messageKey": "KEY_START_TIME",
+		"label": "Start Date",
+		"attributes":
+		{
+		    "type": "time"
+		}
+	    },
+	    {
+		"type": "input",
+		"messageKey": "KEY_END_DATE",
+		"label": "Start Date",
+		"attributes":
+		{
+		    "type": "date"
+		}
+	    },
+	    {
+		"type": "input",
+		"messageKey": "KEY_END_TIME",
+		"label": "Start Date",
+		"attributes":
+		{
+		    "type": "time"
+		}
+	    },
+	    // add fracture time/ fracture time interval
 	]
     },
-    // 	{
-    // 		"type": "section",
-    // 		"items": [		
-    // 			{
-    // 				"type": "checkboxgroup",
-    // 				"messageKey": "CHECK_DATE",
-    // 				"label": "Dates to display",
-    // 				"defaultValue": [false, false, false],
-    // 				"options": ["New Years Day", "Christmas", "Halloween"]
-    // 			}
-    // 		]
-    // 	},			
     {
 	"type": "submit",
 	"defaultValue": "Save"
