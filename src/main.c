@@ -78,13 +78,16 @@ static void update_time() {
   int64_t diff = (int64_t)real_time - start_date_time_in_secs;
   int64_t reverse_diff = end_date_time_in_secs - (int64_t)real_time;
   if (displayed_timescale != TS_LOCAL_TIME && fracture_time) {
-    int reset_interval = get_number_of_secs_from_timeinterval(fracture_time_interval);
-    if (fracturetime_counter <= reset_interval) {
-      fracturetime_counter++;
-      return;
-    }
-    else {
-      fracturetime_counter = 0;
+    // don't bother with counters if updating fracture time every second
+    if (fracture_time_interval != FT_BY_SEC) {
+      int reset_interval = get_number_of_secs_from_timeinterval(fracture_time_interval);
+      if (fracturetime_counter <= reset_interval) {
+	fracturetime_counter++;
+	return;
+      }
+      else {
+	fracturetime_counter = 0;
+      }
     }
     diff *= random_double();
     reverse_diff *= random_double();
