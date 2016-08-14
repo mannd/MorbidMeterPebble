@@ -25,7 +25,7 @@
 #define RANDOM "Random"
 
 typedef enum {
-  TS_LOCAL_TIME,
+  TS_LOCAL_TIME = 0,
   TS_SECONDS,
   TS_MINUTES,
   TS_HOURS,

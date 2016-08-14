@@ -370,12 +370,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *shake_wrist_toggles_time_t = dict_find(iter, MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME);
   Tuple *timescale_t = dict_find(iter, MESSAGE_KEY_TIMESCALE);
   Tuple *reverse_time_t = dict_find(iter, MESSAGE_KEY_REVERSE_TIME);
-  /* Tuple *start_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_START_DATE_TIME_IN_SECS_STRING); */
-  /* Tuple *end_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_END_DATE_TIME_IN_SECS_STRING); */
-  Tuple *start_date_t = dict_find(iter, MESSAGE_KEY_START_DATE);
-  Tuple *start_time_t = dict_find(iter, MESSAGE_KEY_START_TIME);
-  Tuple *end_date_t = dict_find(iter, MESSAGE_KEY_END_DATE);
-  Tuple *end_time_t = dict_find(iter, MESSAGE_KEY_END_TIME);
+  Tuple *start_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_START_DATE);
+  Tuple *end_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_END_DATE);
+  /* Tuple *start_date_t = dict_find(iter, MESSAGE_KEY_START_DATE); */
+  /* Tuple *start_time_t = dict_find(iter, MESSAGE_KEY_START_TIME); */
+  /* Tuple *end_date_t = dict_find(iter, MESSAGE_KEY_END_DATE); */
+  /* Tuple *end_time_t = dict_find(iter, MESSAGE_KEY_END_TIME); */
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
@@ -390,7 +390,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   }
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
-    persist_write_string(MESSAGE_KEY_TIMESCALE, timescale_buffer);
+    persist_write_string(KEY_TIMESCALE, timescale_buffer);
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
   }
@@ -406,14 +406,15 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     reverse_time = (bool) reverse_time_t->value->int8;
     persist_write_bool(MESSAGE_KEY_REVERSE_TIME, reverse_time);
   }
-  /* if (start_date_time_in_secs_t) { */
-  /*   persist_write_string(MESSAGE_KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->value->cstring); */
-  /*   start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring); */
-  /* } */
-  /* if (end_date_time_in_secs_t) { */
-  /*   persist_write_string(MESSAGE_KEY_END_DATE_TIME_IN_SECS_STRING, end_date_time_in_secs_t->value->cstring); */
-  /*   end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring); */
-  /* } */
+  if (start_date_time_in_secs_t) {
+    persist_write_string(MESSAGE_KEY_START_DATE, start_date_time_in_secs_t->value->cstring);
+    start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Start date in secs   = %d", (int)start_date_time_in_secs);
+  }
+  if (end_date_time_in_secs_t) {
+    persist_write_string(MESSAGE_KEY_END_DATE, end_date_time_in_secs_t->value->cstring);
+    end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
+  }
   // reseed random number generator
   srand(time(NULL));
   // config resets timer buzz

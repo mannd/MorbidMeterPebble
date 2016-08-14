@@ -12,20 +12,23 @@ Pebble.addEventListener('webviewclosed', function(e) {
 	return;
     }
 
-    var dict = clay.getSettings(e.response);
-    var startDate = dict[messageKeys.START_DATE];
-    var startTime = dict[messageKeys.START_TIME];
+    var settings = clay.getSettings(e.response);
+    var startDate = settings[messageKeys.START_DATE];
+    var startTime = settings[messageKeys.START_TIME];
+    var endDate = settings[messageKeys.END_DATE];
+    var endTime = settings[messageKeys.END_TIME];
 
-    console.log(startDate);
-    console.log(startTime);
+    var startSecs = getTimeFromDateAndTime(startDate, startTime);
+    var endSecs = getTimeFromDateAndTime(endDate, endTime);
+
+    // make start and end dates into secs
+    // TODO: this is working? why
+    dict = settings;
+    dict[messageKeys.START_DATE] = startSecs.toString();
+    dict[messageKeys.END_DATE] = endSecs.toString();
   
-
-    // add to dict here
-
     Pebble.sendAppMessage(dict, function(e) {
 	console.log('Sent my config data to Pebble');
-	console.log(startDate);
-	console.log(startTime);
     }, function(e) {
 	console.log('Failed to send config data!');
 	console.log(JSON.stringify(e));

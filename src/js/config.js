@@ -48,68 +48,68 @@ module.exports = [
 	    {
 		"type": "select",
 		"messageKey": "TIMESCALE",
-		"defaultValue": "localtime",
+		"defaultValue": "Local Time",
 		"label": "Timescale",
 		"options": [
 		    {
 			"label": "Local Time",
-			"value": "localtime"
+			"value": "Local Time"
 		    },
 		    { 
 			"label": "Seconds",
-			"value": "seconds" 
+			"value": "Seconds"
 		    },
 		    { 
 			"label": "Minutes",
-			"value": "minutes" 
+			"value": "Minutes"
 		    },
 		    { 
 			"label": "Hours",
-			"value": "hours" 
+			"value": "Hours"
 		    },
 		    { 
 			"label": "Days",
-			"value": "days"
+			"value": "Days"
 		    },
 		    { 
 			"label": "D H M S",
-			"value": "dhms" 
+			"value": "D H M S"
 		    },
 		    { 
 			"label": "Years",
-			"value": "years" 
-		    },
-		    { 
-			"label": "One Hour",
-			"value": "onehour" 
+			"value": "Years"
 		    },
 		    { 
 			"label": "One Day",
-			"value": "oneday"
+			"value": "One Day"
+		    },
+		    { 
+			"label": "One Hour",
+			"value": "One Hour"
 		    },
 		    { 
 			"label": "One Month",
-			"value": "onemonth" 
+			"value": "One Month"
 		    },
 		    { 
 			"label": "One Year",
-			"value": "oneyear" 
+			"value": "One Year"
 		    },
 		    { 
 			"label": "Universe",
-			"value": "universe" 
+			"value": "Universe"
 		    },
 		    { 
 			"label": "X Universe",
-			"value": "xuniverse" 
+			"value": "X Universe"
 		    },
 		    { 
 			"label": "X Universe 2",
-			"value": "xuniverse2" 
+			"value": "X Universe 2"
 		    },
 		    { 
 			"label": "Percent",
-			"value": "percent" 
+			"value": "Percent"
 		    }
 		]
 	    },
