@@ -1,7 +1,7 @@
 module.exports = [
     { 
     	"type": "heading", 
-    	"defaultValue": "MorbidMeter Configuration",
+    	"defaultValue": "MorbidMeter",
 	"size": 1,
     },
     {
@@ -13,26 +13,26 @@ module.exports = [
 	    },
 	    {
 		"type": "color",
-		"messageKey": "KEY_BACKGROUND_COLOR",
+		"messageKey": "BACKGROUND_COLOR",
 		"label": "Background Color",
 		"defaultValue": "000000",
 		"sunlight": true
 	    },
 	    {
 		"type": "toggle",
-		"messageKey": "KEY_TWENTY_FOUR_HOUR_FORMAT",
+		"messageKey": "TWENTY_FOUR_HOUR_FORMAT",
 		"label": "Local Time Use 24-Hour Format",
 		"defaultValue": true
 	    },
 	    {
 		"type": "toggle",
-		"messageKey": "KEY_LOCAL_TIME_SHOW_SECONDS",
+		"messageKey": "LOCAL_TIME_SHOW_SECONDS",
 		"label": "Local Time Show Seconds",
 		"defaultValue": true
 	    },
 	    {
 		"type": "toggle",
-		"messageKey": "KEY_SHAKE_WRIST_TOGGLES_TIME",
+		"messageKey": "SHAKE_WRIST_TOGGLES_TIME",
 		"label": "Shake Wrist Toggles Time",
 		"defaultValue": true
 	    }
@@ -47,7 +47,7 @@ module.exports = [
 	    },
 	    {
 		"type": "select",
-		"messageKey": "KEY_TIMESCALE",
+		"messageKey": "TIMESCALE",
 		"defaultValue": "localtime",
 		"label": "Timescale",
 		"options": [
@@ -115,13 +115,13 @@ module.exports = [
 	    },
 	    {
 		"type": "toggle",
-		"messageKey": "KEY_REVERSE_TIME",
+		"messageKey": "REVERSE_TIME",
 		"label": "Countdown Time",
 		"defaultValue": false
 	    },
 	    {
 		"type": "input",
-		"messageKey": "KEY_START_DATE",
+		"messageKey": "START_DATE",
 		"label": "Start Date",
 		"attributes":
 		{
@@ -130,8 +130,8 @@ module.exports = [
 	    },
 	    {
 		"type": "input",
-		"messageKey": "KEY_START_TIME",
-		"label": "Start Date",
+		"messageKey": "START_TIME",
+		"label": "Start Time",
 		"attributes":
 		{
 		    "type": "time"
@@ -139,8 +139,8 @@ module.exports = [
 	    },
 	    {
 		"type": "input",
-		"messageKey": "KEY_END_DATE",
-		"label": "Start Date",
+		"messageKey": "END_DATE",
+		"label": "End Date",
 		"attributes":
 		{
 		    "type": "date"
@@ -148,8 +148,8 @@ module.exports = [
 	    },
 	    {
 		"type": "input",
-		"messageKey": "KEY_END_TIME",
-		"label": "Start Date",
+		"messageKey": "END_TIME",
+		"label": "End Time",
 		"attributes":
 		{
 		    "type": "time"
@@ -163,4 +163,3 @@ module.exports = [
 	"defaultValue": "Save"
     }
 ];
-
