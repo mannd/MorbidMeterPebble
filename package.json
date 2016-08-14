@@ -33,16 +33,18 @@
     "projectType": "native",
     "uuid": "2b1137cb-e8fc-4225-93fb-f546bb9d995e",
       "messageKeys": [
-	    "BACKGROUND_COLOR",
-	    "TWENTY_FOUR_HOUR_FORMAT",
-	    "LOCAL_TIME_SHOW_SECONDS",
-	    "SHAKE_WRIST_TOGGLES_TIME",
-	    "TIMESCALE",
-	    "REVERSE_TIME",
-	    "START_DATE",
-	    "START_TIME",
-	    "END_DATE",
-	    "END_TIME"
+	  "BACKGROUND_COLOR",
+	  "TWENTY_FOUR_HOUR_FORMAT",
+	  "LOCAL_TIME_SHOW_SECONDS",
+	  "SHAKE_WRIST_TOGGLES_TIME",
+	  "TIMESCALE",
+	  "REVERSE_TIME",
+	  "START_DATE",
+	  "START_TIME",
+	  "END_DATE",
+	  "END_TIME",
+	  "FRACTURE_TIME",
+	  "FRACTURE_TIME_INTERVAL"
       ],
 
     "enableMultiJS": true,

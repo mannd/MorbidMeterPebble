@@ -28,9 +28,13 @@ static bool timer_expired = false;
 static bool local_time_show_seconds = true;
 static int64_t start_date_time_in_secs = 0;
 static int64_t end_date_time_in_secs = 0;
+static bool fracture_time = false;
+static fracturetimeinterval fracture_time_interval;
+
 
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm Left";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
+static char fracture_time_buffer[] = " By Hour ";
 
 static timescale selected_timescale = TS_LOCAL_TIME;
 static timescale displayed_timescale = TS_LOCAL_TIME;
@@ -71,6 +75,10 @@ static void update_time() {
   struct tm *tick_time = localtime(&real_time);
   int64_t diff = (int64_t)real_time - start_date_time_in_secs;
   int64_t reverse_diff = end_date_time_in_secs - (int64_t)real_time;
+  if (fracture_time) {
+    diff *= random_double();
+    reverse_diff *= random_double();
+  }
   int64_t total_time = end_date_time_in_secs - start_date_time_in_secs;
   // handle bad or time-out situations here
   if (displayed_timescale != TS_LOCAL_TIME) {
@@ -362,11 +370,9 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *reverse_time_t = dict_find(iter, MESSAGE_KEY_REVERSE_TIME);
   Tuple *start_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_START_DATE);
   Tuple *end_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_END_DATE);
-  /* Tuple *start_date_t = dict_find(iter, MESSAGE_KEY_START_DATE); */
-  /* Tuple *start_time_t = dict_find(iter, MESSAGE_KEY_START_TIME); */
-  /* Tuple *end_date_t = dict_find(iter, MESSAGE_KEY_END_DATE); */
-  /* Tuple *end_time_t = dict_find(iter, MESSAGE_KEY_END_TIME); */
-
+  Tuple *fracture_time_t = dict_find(iter, MESSAGE_KEY_FRACTURE_TIME);
+  Tuple *fracture_time_interval_t = dict_find(iter, MESSAGE_KEY_FRACTURE_TIME_INTERVAL);
+  
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
     persist_write_int(MESSAGE_KEY_BACKGROUND_COLOR, background_color);
@@ -406,6 +412,17 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "End date in secs = %d", (int)end_date_time_in_secs);
   }
+  if (fracture_time_t) {
+    fracture_time  = (bool) fracture_time_t->value->int8;
+    persist_write_bool(MESSAGE_KEY_FRACTURE_TIME, fracture_time);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "fracture time   = %d", fracture_time);
+  }
+  if (fracture_time_interval_t) {
+    strncpy(fracture_time_buffer, fracture_time_interval_t->value->cstring, sizeof(fracture_time_buffer));
+    persist_write_string(MESSAGE_KEY_FRACTURE_TIME_INTERVAL, fracture_time_buffer);
+    fracture_time_interval = get_fracturetimeinterval_from_string(fracture_time_buffer);
+  }
+
   // reseed random number generator
   srand(time(NULL));
   // config resets timer buzz
@@ -496,7 +513,14 @@ static void main_window_load(Window *window) {
     end_date_time_in_secs = (int64_t)myatof(buf);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end = %d", (int)end_date_time_in_secs);
   }
-  
+  if (persist_exists(MESSAGE_KEY_FRACTURE_TIME_INTERVAL)) {
+    persist_read_string(MESSAGE_KEY_FRACTURE_TIME_INTERVAL, fracture_time_buffer, sizeof(fracture_time_buffer));
+    fracture_time_interval = get_fracturetimeinterval_from_string(fracture_time_buffer);
+  }
+  if (persist_read_bool(MESSAGE_KEY_FRACTURE_TIME)) {
+    fracture_time = persist_read_bool(MESSAGE_KEY_FRACTURE_TIME);
+  }
+
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
 

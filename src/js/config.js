@@ -155,7 +155,32 @@ module.exports = [
 		    "type": "time"
 		}
 	    },
-	    // add fracture time/ fracture time interval
+	    {
+		"type": "toggle",
+		"messageKey": "FRACTURE_TIME",
+		"label": "Fracture Time",
+		"defaultValue": false
+	    },
+	    {
+		"type": "select",
+		"messageKey": "FRACTURE_TIME_INTERVAL",
+		"label": "Fracture Time Interval",
+		"defaultValue": "By Sec",
+		"options": [
+		    {
+			"label": "By Sec",
+			"value": "By Sec"
+		    },
+		    { 
+			"label": "By Hour",
+			"value": "By Hour"
+		    },
+		    {
+			"label": "By Day",
+			"value": "By Day"
+		    }
+		]
+	    },
 	]
     },
     {
