@@ -22,7 +22,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
     var endSecs = getTimeFromDateAndTime(endDate, endTime);
 
     // make start and end dates into secs
-    // TODO: this is working? why
     dict = settings;
     dict[messageKeys.START_DATE] = startSecs.toString();
     dict[messageKeys.END_DATE] = endSecs.toString();

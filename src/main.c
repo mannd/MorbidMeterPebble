@@ -11,16 +11,6 @@
 #define TOO_LATE_MESSAGE "\nTimer Complete!"
 #define NEGATIVE_TIME_DURATION_MESSAGE "\nEnd Sooner Than Start!"
 #define OUT_OF_RANGE_SECS_MSG "Too Many Secs To Count"
-#define KEY_BACKGROUND_COLOR 0
-#define KEY_TWENTY_FOUR_HOUR_FORMAT 1
-#define KEY_TIMESCALE 2
-#define KEY_LOCAL_TIME_SHOW_SECONDS 3
-#define KEY_SHAKE_WRIST_TOGGLES_TIME 4
-#define KEY_REVERSE_TIME 5
-#define KEY_START_DATE_TIME_IN_SECS 6
-#define KEY_END_DATE_TIME_IN_SECS 7
-#define KEY_START_DATE_TIME_IN_SECS_STRING 8
-#define KEY_END_DATE_TIME_IN_SECS_STRING 9
 
 #define SECS_IN_HOUR (60 * 60)
 #define SECS_IN_DAY (24 * SECS_IN_HOUR)
@@ -390,7 +380,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   }
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
-    persist_write_string(KEY_TIMESCALE, timescale_buffer);
+    persist_write_string(MESSAGE_KEY_TIMESCALE, timescale_buffer);
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
   }
@@ -409,11 +399,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   if (start_date_time_in_secs_t) {
     persist_write_string(MESSAGE_KEY_START_DATE, start_date_time_in_secs_t->value->cstring);
     start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Start date in secs   = %d", (int)start_date_time_in_secs);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Start date in secs = %d", (int)start_date_time_in_secs);
   }
   if (end_date_time_in_secs_t) {
     persist_write_string(MESSAGE_KEY_END_DATE, end_date_time_in_secs_t->value->cstring);
     end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "End date in secs = %d", (int)end_date_time_in_secs);
   }
   // reseed random number generator
   srand(time(NULL));
@@ -470,37 +461,37 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_timescale_layer, GTextAlignmentCenter);
   strncpy(timescale_buffer, LOCAL_TIME, sizeof(timescale_buffer));
 
-  if (persist_read_int(KEY_BACKGROUND_COLOR)) {
-    int background_color = persist_read_int(KEY_BACKGROUND_COLOR);
+  if (persist_read_int(MESSAGE_KEY_BACKGROUND_COLOR)) {
+    int background_color = persist_read_int(MESSAGE_KEY_BACKGROUND_COLOR);
     set_background_and_text_color(background_color);
   }
-  if (persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT)) {
-    twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
+  if (persist_read_bool(MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT)) {
+    twenty_four_hour_format = persist_read_bool(MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
 
-  if (persist_exists(KEY_TIMESCALE)) {
-    persist_read_string(KEY_TIMESCALE, timescale_buffer, sizeof(timescale_buffer));
+  if (persist_exists(MESSAGE_KEY_TIMESCALE)) {
+    persist_read_string(MESSAGE_KEY_TIMESCALE, timescale_buffer, sizeof(timescale_buffer));
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
   }
-  if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
-    local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
+  if (persist_read_bool(MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS)) {
+    local_time_show_seconds = persist_read_bool(MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS);
   }
-  if (persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME)) {
-    shake_wrist_toggles_time = persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME);
+  if (persist_read_bool(MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME)) {
+    shake_wrist_toggles_time = persist_read_bool(MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME);
   }
-  if (persist_read_bool(KEY_REVERSE_TIME)) {
-    reverse_time = persist_read_bool(KEY_REVERSE_TIME);
+  if (persist_read_bool(MESSAGE_KEY_REVERSE_TIME)) {
+    reverse_time = persist_read_bool(MESSAGE_KEY_REVERSE_TIME);
   }
   char buf[30];
-  if (persist_exists(KEY_START_DATE_TIME_IN_SECS_STRING)) {
-    persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, buf,
+  if (persist_exists(MESSAGE_KEY_START_DATE)) {
+    persist_read_string(MESSAGE_KEY_START_DATE, buf,
 			sizeof(buf));
     start_date_time_in_secs = (int64_t)myatof(buf);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start = %d", (int)start_date_time_in_secs);
   }
-  if (persist_exists(KEY_END_DATE_TIME_IN_SECS_STRING)) {
-    persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, buf,
+  if (persist_exists(MESSAGE_KEY_END_DATE)) {
+    persist_read_string(MESSAGE_KEY_END_DATE, buf,
 			sizeof(buf));
     end_date_time_in_secs = (int64_t)myatof(buf);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end = %d", (int)end_date_time_in_secs);
