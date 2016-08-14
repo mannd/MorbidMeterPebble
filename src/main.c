@@ -15,7 +15,8 @@
 #define SECS_IN_HOUR (60 * 60)
 #define SECS_IN_DAY (24 * SECS_IN_HOUR)
 #define SECS_IN_YEAR (365.25 * SECS_IN_DAY)
-    
+// must be a large int, bigger than largest counter value
+#define MAX_COUNTER 999999    
 static Window *s_main_window;
 static GBitmap *s_bitmap;
 static BitmapLayer *s_bitmap_layer;
@@ -30,6 +31,7 @@ static int64_t start_date_time_in_secs = 0;
 static int64_t end_date_time_in_secs = 0;
 static bool fracture_time = false;
 static fracturetimeinterval fracture_time_interval;
+static int fracturetime_counter = MAX_COUNTER;
 
 
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm Left";
@@ -64,10 +66,10 @@ static int get_decimal_portion_of_double(double d) {
 }
 
 static double random_double() {
-  // returns random double between 0 and 1
-  return (double)rand() / (double)RAND_MAX;
-  // use below if we need to exclude 1.0 to avoid having timer finish prematurely
-  // return (double)ran() / (double)((unsigned)RAND_MAX + 1);
+  // returns random double between 0 and 1, not including 1
+  return (double)rand() / (double)((unsigned)RAND_MAX + 1);
+  // use below if we need to include 1.0 in range
+  // return (double)rand() / (double)RAND_MAX;
 }
 
 static void update_time() {
@@ -75,7 +77,15 @@ static void update_time() {
   struct tm *tick_time = localtime(&real_time);
   int64_t diff = (int64_t)real_time - start_date_time_in_secs;
   int64_t reverse_diff = end_date_time_in_secs - (int64_t)real_time;
-  if (fracture_time) {
+  if (displayed_timescale != TS_LOCAL_TIME && fracture_time) {
+    int reset_interval = get_number_of_secs_from_timeinterval(fracture_time_interval);
+    if (fracturetime_counter <= reset_interval) {
+      fracturetime_counter++;
+      return;
+    }
+    else {
+      fracturetime_counter = 0;
+    }
     diff *= random_double();
     reverse_diff *= random_double();
   }
@@ -342,14 +352,6 @@ static void update_time() {
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
 	     get_decimal_portion_of_double(universe_years));
   }
-  /* else if (displayed_timescale == TS_RANDOM) { */
-  /*   strcat(format_str, "0.%03d"); */
-  /*   strcat(format_str, suffix); */
-  /*   snprintf(time_buffer, sizeof(time_buffer), format_str, random_double()); */
-  /* } */
-  /* More and more and more timescales!! */
-  /* TS_ALT_TZ -- maybe next edition or not at all */
-
   else { 			/* TS_NONE, TS_DEBUG, TS_ERROR */
     strcpy(time_buffer, "MorbidMeter\nSomething Ain't Right!?");
   }
@@ -428,6 +430,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   // config resets timer buzz
   timer_expired = false;
   set_timescale();
+  fracturetime_counter = MAX_COUNTER;
   update_time();
 }
 
@@ -524,6 +527,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
 
+  //  fracturetime_counter = 
   update_time();
   set_timescale();
 }
@@ -552,6 +556,8 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   else {
     displayed_timescale = selected_timescale;
   }
+  // sneaky way to force redisplay of fractured time
+  fracturetime_counter = MAX_COUNTER;
   update_time();
   set_timescale();
 }

@@ -15,7 +15,7 @@ module.exports = [
 		"type": "color",
 		"messageKey": "BACKGROUND_COLOR",
 		"label": "Background Color",
-		"defaultValue": "000000",
+		"defaultValue": "FFFFFF",
 		"sunlight": true
 	    },
 	    {
@@ -170,6 +170,10 @@ module.exports = [
 		    {
 			"label": "By Sec",
 			"value": "By Sec"
+		    },
+		    {
+			"label": "By Min",
+			"value": "By Min"
 		    },
 		    { 
 			"label": "By Hour",
