@@ -18,6 +18,7 @@ static char* timescale_name[] = {
   X_UNIVERSE_2,
   PERCENT,
   NONE,
+  RANDOM,
   DEBUG
 };
 
@@ -79,6 +80,9 @@ timescale get_timescale_from_string(char *ts_name) {
   }
   else if (strcmp(ts_name, DEBUG) == 0) {
     return TS_DEBUG;
+  }
+  else if (strcmp(ts_name, RANDOM) == 0) {
+    return TS_RANDOM;
   }
   else {
     return TS_ERROR;

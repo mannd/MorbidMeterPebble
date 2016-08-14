@@ -69,6 +69,13 @@ static int get_decimal_portion_of_double(double d) {
   return (int)((d < 0 ? -d : d) * 1000) % 1000;
 }
 
+static double random_double() {
+  // returns random double between 0 and 1
+  return (double)rand() / (double)RAND_MAX;
+  // use below if we need to exclude 1.0 to avoid having timer finish prematurely
+  // return (double)ran() / (double)((unsigned)RAND_MAX + 1);
+}
+
 static void update_time() {
   time_t real_time = time(NULL);
   struct tm *tick_time = localtime(&real_time);
@@ -337,7 +344,11 @@ static void update_time() {
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
 	     get_decimal_portion_of_double(universe_years));
   }
-      
+  /* else if (displayed_timescale == TS_RANDOM) { */
+  /*   strcat(format_str, "0.%03d"); */
+  /*   strcat(format_str, suffix); */
+  /*   snprintf(time_buffer, sizeof(time_buffer), format_str, random_double()); */
+  /* } */
   /* More and more and more timescales!! */
   /* TS_ALT_TZ -- maybe next edition or not at all */
 
@@ -353,24 +364,28 @@ static void set_timescale() {
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
-  Tuple *background_color_t = dict_find(iter, KEY_BACKGROUND_COLOR);
-  Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
-  Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
-  Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
-  Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
-  Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
-  Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS_STRING);
-  Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS_STRING);
+  Tuple *background_color_t = dict_find(iter, MESSAGE_KEY_BACKGROUND_COLOR);
+  Tuple *twenty_four_hour_format_t = dict_find(iter, MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT);
+  Tuple *local_time_show_seconds_t = dict_find(iter, MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS);
+  Tuple *shake_wrist_toggles_time_t = dict_find(iter, MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME);
+  Tuple *timescale_t = dict_find(iter, MESSAGE_KEY_TIMESCALE);
+  Tuple *reverse_time_t = dict_find(iter, MESSAGE_KEY_REVERSE_TIME);
+  Tuple *start_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_START_DATE);
+  Tuple *end_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_END_DATE);
+  /* Tuple *start_date_t = dict_find(iter, MESSAGE_KEY_START_DATE); */
+  /* Tuple *start_time_t = dict_find(iter, MESSAGE_KEY_START_TIME); */
+  /* Tuple *end_date_t = dict_find(iter, MESSAGE_KEY_END_DATE); */
+  /* Tuple *end_time_t = dict_find(iter, MESSAGE_KEY_END_TIME); */
 
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
-    persist_write_int(KEY_BACKGROUND_COLOR, background_color);
+    persist_write_int(MESSAGE_KEY_BACKGROUND_COLOR, background_color);
     set_background_and_text_color(background_color);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "background color = %d", background_color);
   }
   if (twenty_four_hour_format_t) {
     twenty_four_hour_format = (bool) twenty_four_hour_format_t->value->int8;
-    persist_write_bool(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
+    persist_write_bool(MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hr format  = %d", twenty_four_hour_format);
   }
   if (timescale_t) {
@@ -381,24 +396,27 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   }
   if (local_time_show_seconds_t) {
     local_time_show_seconds = (bool) local_time_show_seconds_t->value->int8;
-    persist_write_bool(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
+    persist_write_bool(MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
   }
   if (shake_wrist_toggles_time_t) {
     shake_wrist_toggles_time = (bool) shake_wrist_toggles_time_t->value->int8;
-    persist_write_bool(KEY_SHAKE_WRIST_TOGGLES_TIME, shake_wrist_toggles_time);
+    persist_write_bool(MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME, shake_wrist_toggles_time);
   }
   if (reverse_time_t) {
     reverse_time = (bool) reverse_time_t->value->int8;
-    persist_write_bool(KEY_REVERSE_TIME, reverse_time);
+    persist_write_bool(MESSAGE_KEY_REVERSE_TIME, reverse_time);
   }
   if (start_date_time_in_secs_t) {
-    persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->value->cstring);
+    persist_write_string(MESSAGE_KEY_START_DATE, start_date_time_in_secs_t->value->cstring);
     start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Start date in secs   = %d", (int)start_date_time_in_secs);
   }
   if (end_date_time_in_secs_t) {
-    persist_write_string(KEY_END_DATE_TIME_IN_SECS_STRING, end_date_time_in_secs_t->value->cstring);
+    persist_write_string(MESSAGE_KEY_END_DATE, end_date_time_in_secs_t->value->cstring);
     end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
   }
+  // reseed random number generator
+  srand(time(NULL));
   // config resets timer buzz
   timer_expired = false;
   set_timescale();
@@ -537,7 +555,7 @@ static void init() {
   accel_tap_service_subscribe(tap_handler);
 
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(1024, 1024);
 }
 
 static void deinit() {
