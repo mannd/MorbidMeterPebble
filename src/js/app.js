@@ -34,17 +34,16 @@ Pebble.addEventListener('webviewclosed', function(e) {
   });
 });
 
-
-
-
-
 function getTimeFromDateAndTime(date, time) {
   var dateParts = date.split('-');
   var timeParts = time.split(':');
-  var today = new Date();
-  var timezoneOffset = today.getTimezoneOffset();
-  var d =  new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0],
-                    timeParts[1] - timezoneOffset, 0);
-  return d.getTime() / 1000;   // Pebble uses secs not msec for time
-};
+  // apparently date returns local date, including msec, so
+  // no need to adjust for time zone.
+  // This was a bug in earlier versions of MMP
+  //var timezoneOffset = new Date().getTimezoneOffset();
 
+  // Config doesn't allow adjusting seconds, so they are zeroed out
+  var d =  new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0],
+                    timeParts[1]);
+  return d.getTime() / 1000;   // Pebble uses secs not msec for time
+}
