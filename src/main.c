@@ -270,11 +270,11 @@ static void update_time() {
     // one month goes from 2000-01-01 00:00 to 2000-02-01 00:00
     struct tm start = {0};
     start.tm_year = 100;
-    start.tm_mon = 0;
+    start.tm_mon = 0;  // Jan
     start.tm_mday = 1;
     struct tm end = {0};
     end.tm_year = 100;
-    end.tm_mon = 2;
+    end.tm_mon = 1;  // Feb
     end.tm_mday = 1;
     time_t start_in_secs = mktime(&start);
     time_t end_in_secs = mktime(&end);
