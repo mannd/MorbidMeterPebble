@@ -18,6 +18,7 @@ static char* timescale_name[] = {
   X_UNIVERSE_2,
   PERCENT,
   NONE,
+  RANDOM,
   DEBUG
 };
 
@@ -80,7 +81,47 @@ timescale get_timescale_from_string(char *ts_name) {
   else if (strcmp(ts_name, DEBUG) == 0) {
     return TS_DEBUG;
   }
+  else if (strcmp(ts_name, RANDOM) == 0) {
+    return TS_RANDOM;
+  }
   else {
     return TS_ERROR;
+  }
+}
+
+fracturetimeinterval get_fracturetimeinterval_from_string(char *ft_interval) {
+  if (strcmp(ft_interval, BY_SEC) == 0) {
+    return FT_BY_SEC;
+  }
+  else if (strcmp(ft_interval, BY_MIN) == 0) {
+    return FT_BY_MIN;
+  }
+  else if (strcmp(ft_interval, BY_HOUR) == 0) {
+    return FT_BY_HOUR;
+  }
+  else if (strcmp(ft_interval, BY_DAY) == 0) {
+    return FT_BY_DAY;
+  }
+  else {
+    return FT_ERROR;
+  }
+}
+
+int get_number_of_secs_from_timeinterval(fracturetimeinterval interval) {
+  switch(interval) {
+  case FT_BY_SEC:
+    return 1;
+    break;
+  case FT_BY_MIN:
+    return 60;
+    break;
+  case FT_BY_HOUR:
+    return 60 * 60;
+    break;
+  case FT_BY_DAY:
+    return 60 * 60 * 24;
+    break;
+  default:
+    return 0;
   }
 }

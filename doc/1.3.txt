@@ -1,0 +1,5 @@
+MorbidMeter for Pebble v1.3 Release Notes
+Changes since v1.2
+* Added Fracture Time option - see description for more details
+* Configuration now uses Pebble Clay
+* Fixed bug in One Month timescale

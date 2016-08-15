@@ -22,9 +22,16 @@
 #define ALT_TZ "Alt Timezone"
 #define NONE "None"
 #define DEBUG "Debug"
+#define RANDOM "Random"
+
+// for fracture time
+#define BY_SEC "By Sec"
+#define BY_MIN "By Min"
+#define BY_HOUR "By Hour"
+#define BY_DAY "By Day"
 
 typedef enum {
-  TS_LOCAL_TIME,
+  TS_LOCAL_TIME = 0,
   TS_SECONDS,
   TS_MINUTES,
   TS_HOURS,
@@ -42,10 +49,21 @@ typedef enum {
   TS_ALT_TZ,
   TS_NONE,
   TS_DEBUG,
+  TS_RANDOM,
   TS_ERROR
 } timescale;
 
+typedef enum {
+  FT_BY_SEC,
+  FT_BY_MIN,
+  FT_BY_HOUR,
+  FT_BY_DAY,
+  FT_ERROR
+} fracturetimeinterval;
+
 timescale get_timescale_from_string(char *ts_name);
 char *get_string_from_timescale(timescale ts);
+fracturetimeinterval get_fracturetimeinterval_from_string(char *ft_interval);
+int get_number_of_secs_from_timeinterval(fracturetimeinterval interval);
 
 #endif

@@ -11,21 +11,12 @@
 #define TOO_LATE_MESSAGE "\nTimer Complete!"
 #define NEGATIVE_TIME_DURATION_MESSAGE "\nEnd Sooner Than Start!"
 #define OUT_OF_RANGE_SECS_MSG "Too Many Secs To Count"
-#define KEY_BACKGROUND_COLOR 0
-#define KEY_TWENTY_FOUR_HOUR_FORMAT 1
-#define KEY_TIMESCALE 2
-#define KEY_LOCAL_TIME_SHOW_SECONDS 3
-#define KEY_SHAKE_WRIST_TOGGLES_TIME 4
-#define KEY_REVERSE_TIME 5
-#define KEY_START_DATE_TIME_IN_SECS 6
-#define KEY_END_DATE_TIME_IN_SECS 7
-#define KEY_START_DATE_TIME_IN_SECS_STRING 8
-#define KEY_END_DATE_TIME_IN_SECS_STRING 9
 
 #define SECS_IN_HOUR (60 * 60)
 #define SECS_IN_DAY (24 * SECS_IN_HOUR)
 #define SECS_IN_YEAR (365.25 * SECS_IN_DAY)
-    
+// must be a large int, bigger than largest counter value
+#define MAX_COUNTER 999999    
 static Window *s_main_window;
 static GBitmap *s_bitmap;
 static BitmapLayer *s_bitmap_layer;
@@ -38,9 +29,14 @@ static bool timer_expired = false;
 static bool local_time_show_seconds = true;
 static int64_t start_date_time_in_secs = 0;
 static int64_t end_date_time_in_secs = 0;
+static bool fracture_time = false;
+static fracturetimeinterval fracture_time_interval;
+static int fracturetime_counter = MAX_COUNTER;
+
 
 static char time_buffer[] = MM_TITLE "\nMMM 00 0000\n00:00:00 pm Left";
 static char timescale_buffer[] = "   " LOCAL_TIME "   ";
+static char fracture_time_buffer[] = " By Hour ";
 
 static timescale selected_timescale = TS_LOCAL_TIME;
 static timescale displayed_timescale = TS_LOCAL_TIME;
@@ -67,6 +63,13 @@ static void vertically_center_time_layer() {
 
 static int get_decimal_portion_of_double(double d) {
   return (int)((d < 0 ? -d : d) * 1000) % 1000;
+}
+
+static double random_double() {
+  // returns random double between 0 and 1, not including 1
+  return (double)rand() / (double)((unsigned)RAND_MAX + 1);
+  // use below if we need to include 1.0 in range
+  // return (double)rand() / (double)RAND_MAX;
 }
 
 static void update_time() {
@@ -104,6 +107,21 @@ static void update_time() {
       vertically_center_time_layer();
       return;
     }
+  }
+  if (displayed_timescale != TS_LOCAL_TIME && fracture_time) {
+    // don't bother with counters if updating fracture time every second
+    if (fracture_time_interval != FT_BY_SEC) {
+      int reset_interval = get_number_of_secs_from_timeinterval(fracture_time_interval);
+      if (fracturetime_counter <= reset_interval) {
+	fracturetime_counter++;
+	return;
+      }
+      else {
+	fracturetime_counter = 0;
+      }
+    }
+    diff *= random_double();
+    reverse_diff *= random_double();
   }
   
   char format_str[40];
@@ -252,11 +270,11 @@ static void update_time() {
     // one month goes from 2000-01-01 00:00 to 2000-02-01 00:00
     struct tm start = {0};
     start.tm_year = 100;
-    start.tm_mon = 0;
+    start.tm_mon = 0;  // Jan
     start.tm_mday = 1;
     struct tm end = {0};
     end.tm_year = 100;
-    end.tm_mon = 2;
+    end.tm_mon = 1;  // Feb
     end.tm_mday = 1;
     time_t start_in_secs = mktime(&start);
     time_t end_in_secs = mktime(&end);
@@ -337,10 +355,6 @@ static void update_time() {
     snprintf(time_buffer, sizeof(time_buffer), format_str, (int)universe_years,
 	     get_decimal_portion_of_double(universe_years));
   }
-      
-  /* More and more and more timescales!! */
-  /* TS_ALT_TZ -- maybe next edition or not at all */
-
   else { 			/* TS_NONE, TS_DEBUG, TS_ERROR */
     strcpy(time_buffer, "MorbidMeter\nSomething Ain't Right!?");
   }
@@ -353,55 +367,73 @@ static void set_timescale() {
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
-  Tuple *background_color_t = dict_find(iter, KEY_BACKGROUND_COLOR);
-  Tuple *twenty_four_hour_format_t = dict_find(iter, KEY_TWENTY_FOUR_HOUR_FORMAT);
-  Tuple *timescale_t = dict_find(iter, KEY_TIMESCALE);
-  Tuple *local_time_show_seconds_t = dict_find(iter, KEY_LOCAL_TIME_SHOW_SECONDS);
-  Tuple *shake_wrist_toggles_time_t = dict_find(iter, KEY_SHAKE_WRIST_TOGGLES_TIME);
-  Tuple *reverse_time_t = dict_find(iter, KEY_REVERSE_TIME);
-  Tuple *start_date_time_in_secs_t = dict_find(iter, KEY_START_DATE_TIME_IN_SECS_STRING);
-  Tuple *end_date_time_in_secs_t = dict_find(iter, KEY_END_DATE_TIME_IN_SECS_STRING);
-
+  Tuple *background_color_t = dict_find(iter, MESSAGE_KEY_BACKGROUND_COLOR);
+  Tuple *twenty_four_hour_format_t = dict_find(iter, MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT);
+  Tuple *local_time_show_seconds_t = dict_find(iter, MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS);
+  Tuple *shake_wrist_toggles_time_t = dict_find(iter, MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME);
+  Tuple *timescale_t = dict_find(iter, MESSAGE_KEY_TIMESCALE);
+  Tuple *reverse_time_t = dict_find(iter, MESSAGE_KEY_REVERSE_TIME);
+  Tuple *start_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_START_DATE);
+  Tuple *end_date_time_in_secs_t = dict_find(iter, MESSAGE_KEY_END_DATE);
+  Tuple *fracture_time_t = dict_find(iter, MESSAGE_KEY_FRACTURE_TIME);
+  Tuple *fracture_time_interval_t = dict_find(iter, MESSAGE_KEY_FRACTURE_TIME_INTERVAL);
+  
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
-    persist_write_int(KEY_BACKGROUND_COLOR, background_color);
+    persist_write_int(MESSAGE_KEY_BACKGROUND_COLOR, background_color);
     set_background_and_text_color(background_color);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "background color = %d", background_color);
   }
   if (twenty_four_hour_format_t) {
     twenty_four_hour_format = (bool) twenty_four_hour_format_t->value->int8;
-    persist_write_bool(KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
+    persist_write_bool(MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT, twenty_four_hour_format);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "24 hr format  = %d", twenty_four_hour_format);
   }
   if (timescale_t) {
     strncpy(timescale_buffer, timescale_t->value->cstring, sizeof(timescale_buffer));
-    persist_write_string(KEY_TIMESCALE, timescale_buffer);
+    persist_write_string(MESSAGE_KEY_TIMESCALE, timescale_buffer);
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
   }
   if (local_time_show_seconds_t) {
     local_time_show_seconds = (bool) local_time_show_seconds_t->value->int8;
-    persist_write_bool(KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
+    persist_write_bool(MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS, local_time_show_seconds);
   }
   if (shake_wrist_toggles_time_t) {
     shake_wrist_toggles_time = (bool) shake_wrist_toggles_time_t->value->int8;
-    persist_write_bool(KEY_SHAKE_WRIST_TOGGLES_TIME, shake_wrist_toggles_time);
+    persist_write_bool(MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME, shake_wrist_toggles_time);
   }
   if (reverse_time_t) {
     reverse_time = (bool) reverse_time_t->value->int8;
-    persist_write_bool(KEY_REVERSE_TIME, reverse_time);
+    persist_write_bool(MESSAGE_KEY_REVERSE_TIME, reverse_time);
   }
   if (start_date_time_in_secs_t) {
-    persist_write_string(KEY_START_DATE_TIME_IN_SECS, start_date_time_in_secs_t->value->cstring);
+    persist_write_string(MESSAGE_KEY_START_DATE, start_date_time_in_secs_t->value->cstring);
     start_date_time_in_secs = (int64_t)myatof(start_date_time_in_secs_t->value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Start date in secs = %d", (int)start_date_time_in_secs);
   }
   if (end_date_time_in_secs_t) {
-    persist_write_string(KEY_END_DATE_TIME_IN_SECS_STRING, end_date_time_in_secs_t->value->cstring);
+    persist_write_string(MESSAGE_KEY_END_DATE, end_date_time_in_secs_t->value->cstring);
     end_date_time_in_secs = (int64_t)myatof(end_date_time_in_secs_t->value->cstring);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "End date in secs = %d", (int)end_date_time_in_secs);
   }
+  if (fracture_time_t) {
+    fracture_time  = (bool) fracture_time_t->value->int8;
+    persist_write_bool(MESSAGE_KEY_FRACTURE_TIME, fracture_time);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "fracture time   = %d", fracture_time);
+  }
+  if (fracture_time_interval_t) {
+    strncpy(fracture_time_buffer, fracture_time_interval_t->value->cstring, sizeof(fracture_time_buffer));
+    persist_write_string(MESSAGE_KEY_FRACTURE_TIME_INTERVAL, fracture_time_buffer);
+    fracture_time_interval = get_fracturetimeinterval_from_string(fracture_time_buffer);
+  }
+
+  // reseed random number generator
+  srand(time(NULL));
   // config resets timer buzz
   timer_expired = false;
   set_timescale();
+  fracturetime_counter = MAX_COUNTER;
   update_time();
 }
 
@@ -452,45 +484,53 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_timescale_layer, GTextAlignmentCenter);
   strncpy(timescale_buffer, LOCAL_TIME, sizeof(timescale_buffer));
 
-  if (persist_read_int(KEY_BACKGROUND_COLOR)) {
-    int background_color = persist_read_int(KEY_BACKGROUND_COLOR);
+  if (persist_read_int(MESSAGE_KEY_BACKGROUND_COLOR)) {
+    int background_color = persist_read_int(MESSAGE_KEY_BACKGROUND_COLOR);
     set_background_and_text_color(background_color);
   }
-  if (persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT)) {
-    twenty_four_hour_format = persist_read_bool(KEY_TWENTY_FOUR_HOUR_FORMAT);
+  if (persist_read_bool(MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT)) {
+    twenty_four_hour_format = persist_read_bool(MESSAGE_KEY_TWENTY_FOUR_HOUR_FORMAT);
   }
 
-  if (persist_exists(KEY_TIMESCALE)) {
-    persist_read_string(KEY_TIMESCALE, timescale_buffer, sizeof(timescale_buffer));
+  if (persist_exists(MESSAGE_KEY_TIMESCALE)) {
+    persist_read_string(MESSAGE_KEY_TIMESCALE, timescale_buffer, sizeof(timescale_buffer));
     selected_timescale = get_timescale_from_string(timescale_buffer);
     displayed_timescale = selected_timescale;
   }
-  if (persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS)) {
-    local_time_show_seconds = persist_read_bool(KEY_LOCAL_TIME_SHOW_SECONDS);
+  if (persist_read_bool(MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS)) {
+    local_time_show_seconds = persist_read_bool(MESSAGE_KEY_LOCAL_TIME_SHOW_SECONDS);
   }
-  if (persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME)) {
-    shake_wrist_toggles_time = persist_read_bool(KEY_SHAKE_WRIST_TOGGLES_TIME);
+  if (persist_read_bool(MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME)) {
+    shake_wrist_toggles_time = persist_read_bool(MESSAGE_KEY_SHAKE_WRIST_TOGGLES_TIME);
   }
-  if (persist_read_bool(KEY_REVERSE_TIME)) {
-    reverse_time = persist_read_bool(KEY_REVERSE_TIME);
+  if (persist_read_bool(MESSAGE_KEY_REVERSE_TIME)) {
+    reverse_time = persist_read_bool(MESSAGE_KEY_REVERSE_TIME);
   }
   char buf[30];
-  if (persist_exists(KEY_START_DATE_TIME_IN_SECS_STRING)) {
-    persist_read_string(KEY_START_DATE_TIME_IN_SECS_STRING, buf,
+  if (persist_exists(MESSAGE_KEY_START_DATE)) {
+    persist_read_string(MESSAGE_KEY_START_DATE, buf,
 			sizeof(buf));
     start_date_time_in_secs = (int64_t)myatof(buf);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "start = %d", (int)start_date_time_in_secs);
   }
-  if (persist_exists(KEY_END_DATE_TIME_IN_SECS_STRING)) {
-    persist_read_string(KEY_END_DATE_TIME_IN_SECS_STRING, buf,
+  if (persist_exists(MESSAGE_KEY_END_DATE)) {
+    persist_read_string(MESSAGE_KEY_END_DATE, buf,
 			sizeof(buf));
     end_date_time_in_secs = (int64_t)myatof(buf);
     APP_LOG(APP_LOG_LEVEL_DEBUG, "end = %d", (int)end_date_time_in_secs);
   }
-  
+  if (persist_exists(MESSAGE_KEY_FRACTURE_TIME_INTERVAL)) {
+    persist_read_string(MESSAGE_KEY_FRACTURE_TIME_INTERVAL, fracture_time_buffer, sizeof(fracture_time_buffer));
+    fracture_time_interval = get_fracturetimeinterval_from_string(fracture_time_buffer);
+  }
+  if (persist_read_bool(MESSAGE_KEY_FRACTURE_TIME)) {
+    fracture_time = persist_read_bool(MESSAGE_KEY_FRACTURE_TIME);
+  }
+
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_timescale_layer));
 
+  //  fracturetime_counter = 
   update_time();
   set_timescale();
 }
@@ -519,6 +559,8 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   else {
     displayed_timescale = selected_timescale;
   }
+  // sneaky way to force redisplay of fractured time
+  fracturetime_counter = MAX_COUNTER;
   update_time();
   set_timescale();
 }
@@ -537,7 +579,7 @@ static void init() {
   accel_tap_service_subscribe(tap_handler);
 
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(1024, 1024);
 }
 
 static void deinit() {
